@@ -1,0 +1,634 @@
+
+
+  VITE v6.4.3  ready in 308 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+3:48:53 PM [vite] (client) page reload src/api/endpoints.js
+3:48:56 PM [vite] (client) hmr update /src/components/ChatList.jsx, /src/index.css
+3:48:56 PM [vite] (client) hmr update /src/pages/LoginPage.jsx, /src/index.css
+3:49:27 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/Dashboard
+3:49:27 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage
+3:49:27 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /sr
+3:49:27 PM [vite] (client) hmr update /src.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/c
+3:49:27 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/components/ChatWindow.jsx
+3:49:28 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/Dashboard
+3:49:28 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage
+3:49:28 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /sr
+3:49:28 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/c
+3:49:28 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/components/ChatWindow.jsx (x2)
+3:49:28 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/Dashboard
+3:49:28 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage
+3:49:28 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /sr
+3:49:28 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/c
+3:49:28 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/components/ChatWindow.jsx (x3)
+3:54:13 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/Dashboard
+3:54:13 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage
+3:54:13 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /sr
+3:54:13 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/c
+3:54:13 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/components/ChatWindow.jsx (x4)
+4:15:34 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/Dashboard
+4:15:34 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage
+4:15:34 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /sr
+4:15:34 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/c
+4:15:34 PM [vite] (client) hmr update /src/index.css, /src/App.jsx, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/components/ChatWindow.jsx (x5)
+9:35:58 PM [vite] (client) hmr update /src/App.jsx, /src/index.css, /src/pages/Dashboard
+9:35:58 PM [vite] (client) hmr update /src/App.jsx, /src/index.css, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage
+9:35:58 PM [vite] (client) hmr update /src/App.jsx, /src/index.css, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /sr
+9:35:58 PM [vite] (client) hmr update /src/App.jsx, /src/index.css, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/c
+9:35:58 PM [vite] (client) hmr update /src/App.jsx, /src/index.css, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/components/ChatWindow.jsx
+9:36:01 PM [vite] (client) hmr update /src/App.jsx, /src/index.css, /src/pages/Dashboard
+9:36:01 PM [vite] (client) hmr update /src/App.jsx, /src/index.css, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage
+9:36:01 PM [vite] (client) hmr update /src/App.jsx, /src/index.css, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /sr
+9:36:01 PM [vite] (client) hmr update /src/App.jsx, /src/index.css, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/c
+9:36:01 PM [vite] (client) hmr update /src/App.jsx, /src/index.css, /src/pages/DashboardPage.jsx, /src/pages/LoginPage.jsx, /src/pages/RegisterPage.jsx, /src/pages/ProjectsPage.jsx, /src/pages/TeamPage.jsx, /src/pages/ChatsPage.jsx, /src/pages/BacklogPage.jsx, /src/pages/StatsPage.jsx, /src/components/Sidebar.jsx, /src/components/ChatList.jsx, /src/components/ChatWindow.jsx (x2)
+9:36:03 PM [vite] (client) hmr update /src/components/TaskCard.jsx, /src/index.css
+9:36:09 PM [vite] (client) hmr update /src/pages/BacklogPage.jsx, /src/index.css
+9:36:29 PM [vite] (client) hmr update /src/pages/ProjectsPage.jsx, /src/index.css
+9:36:32 PM [vite] (client) hmr update /src/components/ProjectCard.jsx, /src/index.css
+9:36:36 PM [vite] (client) hmr update /src/components/ProjectCreateModal.jsx, /src/index
+9:36:36 PM [vite] (client) hmr update /src/components/ProjectCreateModal.jsx, /src/index.css
+9:36:39 PM [vite] (client) hmr update /src/components/ProjectEditModal.jsx, /src/index.c
+9:36:39 PM [vite] (client) hmr update /src/components/ProjectEditModal.jsx, /src/index.css
+9:36:55 PM [vite] (client) hmr update /src/components/EditTaskModal.jsx, /src/index.css
+9:37:04 PM [vite] (client) hmr update /src/components/ChatWindow.jsx, /src/index.css
+9:37:16 PM [vite] (client) hmr update /src/components/Sidebar.jsx, /src/index.css
+9:37:17 PM [vite] (client) hmr update /src/pages/DashboardPage.jsx, /src/index.css
+9:37:18 PM [vite] (client) hmr update /src/pages/DashboardPage.jsx, /src/index.css (x2)
+9:37:21 PM [vite] (client) hmr update /src/components/Sidebar.jsx, /src/index.css
+9:37:22 PM [vite] (client) hmr update /src/pages/TeamPage.jsx, /src/index.css
+9:37:22 PM [vite] (client) hmr update /src/App.jsx, /src/index.css
+9:37:23 PM [vite] (client) hmr update /src/App.jsx, /src/index.css (x2)
+9:37:29 PM [vite] (client) hmr update /src/pages/LoginPage.jsx, /src/index.css
+9:37:30 PM [vite] (client) hmr update /src/pages/DashboardPage.jsx, /src/index.css
+9:37:30 PM [vite] (client) hmr update /src/pages/LoginPage.jsx, /src/index.css
+9:37:31 PM [vite] (client) hmr update /src/pages/LoginPage.jsx, /src/index.css (x2)
+9:37:31 PM [vite] Internal server error: /Users/muhamadhalife/Desktop/Проект по айти/IT 
+9:37:31 PM [vite] Internal server error: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/LoginPage.jsx: Expected corresponding JSX closing tag for <form>. (2
+9:37:31 PM [viteUsers/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/LoginPage.jsx: Expected corresponding JSX closing tag for <form>. (226:8)
+
+  224 |             <span className="text-xs text-gray-500 italic">Защищено шифрованием 
+  224 |             <span className="text-xs text-gray-500 italic">Защищено шифрованием SSL</span>
+  225 |           </div>
+> 226 |         </div>
+      |         ^
+  227 |       </div>
+  228 |     </div>
+  229 |   )
+  Plugin: vite:react-babel
+  File: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/LoginPage.jsx
+  File: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/LoginPage.jsx:226:8
+  224|              <span className="text-xs text-gray-500 italic">Защищено шифрованием 
+  224|              <span className="text-xs text-gray-500 italic">Защищено шифрованием SSL</span>
+  225|            </div>
+  226|          <Проект по айти/IT Team/html/node_modu
+      at constructor (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/
+      at JSXParserMixin.raise (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4739:16)
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4710:32)
+      at JSXParserMixin.jst (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4710:32)
+      at JSXParserMixin.jsxParseElement (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.jsxParseElement (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4771:19)
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11098:23)
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проектти/IT Team/html/node_modules/@babel/parser/lib/index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10916:61)
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Tea
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Пр�e/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10848:21)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10817:39
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12443:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/Users/muhamadhalife/Desktop/П�т по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10817:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/muhamadhalife/Deskt
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12510:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/Users/muhamadhalife/Desktop
+      at JSXParserMixin.parseParenAndDistinguishExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11692:28)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11348:23)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhparseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4776:20)
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11098:23)
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnarrPrivate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10916:61)
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Tea
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (/Users/muhaamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10801:23)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10797:39
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12438:16)
+      at JSXParserMixin.parseExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10797:17)
+      at JSXParserMixin.parseReturnStatement (/Users/muhamadhalife/Desktop/Проект по аи�html/node_modules/@babel/parser/lib/index.js:13159:28)
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12815:21)
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12784:17)
+      at JSXParserMixin.parseStatementListItem (/Users/muhamadhalife/Desktop/Проект по а
+      at JSXParserMixin.parseStatementListItem (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12764:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13333:61)
+      at JSXParserMixin.parseBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT T
+      at JSXParserMixin.parseBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13326:10)
+      at JSXParserMixin.parseBlock (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.parseBlock (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13314:10)
+      at JSXParserMixin.parseFunctionBody (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.parseFunctionBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12117:24)
+      at JSXParserMixin.parseFunctionBodndFinish (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12103:10)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13462:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/Users/muhamadhalife/Desktop
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12420:14)
+      at JSXParserMixin.parseFunction (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseFunction (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13461:10)
+      at JSXParserMixin.parseExportDefaultExpression (/Users/muhamadhalife/Desktop/Проек
+      at JSXParserMixin.parseExportDefaultExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13924:19)
+      at JSXParserMixin.parseExport (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParserMixin.parseExport (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_moduт по ай
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12895:27)
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseModuleItem (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13333:36)
+9:37:33 PM [vite] (client) hmr update /src/pages/Logesktop/Проект по айти/IT 
+9:37:33 PM [vite] Internal server error: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/LoginPage.jsx: Expected corresponding JSX closing tag for <form>. (2
+9:37:33 PM [vite] Internal server error: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/LoginPage.jsx: Expected corresponding JSX closing tag for <form>. (213:8)
+
+  211 |             <span className="text-xs text-gray-500 italic">Защищено шифрованием 
+  211 |             <span className="text-xs text-gray-500 italic">Защищено шифрованием SSL</span>
+  212 |           </div>
+> 213 |         </div>
+      |         ^
+  214 |       </div>
+  215 |     </div>
+  216 |   )
+  Plugin: vite:react-babel
+  File: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/LoginPage.jsx
+  File: /Users/muhamadhalife/Desktop/Проект по айти/ITlic">Защищено шифрованием 
+  211|              <span className="text-xs text-gray-500 italic">Защищено шифрованием SSL</span>
+  212|            </div>
+  213|          </div>
+     |          ^
+  214|        </div>
+  215|      </div>
+      at constructor (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modu
+      at constructor (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/
+      at JSXParserMixin.raise (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проек�entAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4710:32)
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4710:32)
+      at JSXParserMixin.jsxParseElement (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.jsxParseElement (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проеin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11098:23)
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desk   at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Tea
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10848:21)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12443:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/Users/muhamadhalife/Desktop/Проект по 
+      at JSXParserMixin.parseMaybeAssignAllowIn (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10817:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/muhamadhalife/Deskt
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12510:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/Users/muhamadhalife/Desktop
+      at JSXParserMixin.parseParenAndDistinguishExpression (/Users/muhamadhalife/Desktop/Проект по 
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11348:23)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4776:20)
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11098:23)
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParse@babel/parser/lib/index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10916:61)
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Tea
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desk     at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExpressionBase (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10801:23)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10797:39
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12438:16)
+      at JSXParserMixin.parseExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10797:tatement (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13159:28)
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12815:21)
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12784:17)
+      at JSXParserMixin.parseStatementListItem (/Users/muhamadhalife/Desktop/Проект по а
+      at JSXParserMixin.parseStatementListItem (/Users/muhamadhalife/Desktop/Проект по а�rserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13333:61)
+      at JSXParserMixin.parseBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT T
+      at JSXParserMixin.parseBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13326:10)
+      at JSXParserMixin.parseBlock (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.parseBlock (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13314:10)
+      at JSXParserMixin.parseFunctionBody (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.parseFunctionBody r/lib/index.js:12117:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/Users/muhamadhalife/Desktop/Проект 
+      at JSXParserMixin.parseFunctionBodyAndFinish (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12103:10)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13462:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/Users/muhamadhalife/Desktop
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12420:14)
+      at JSXParserMixin.parseFunction (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseFunction (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.jse/Desktop/Проек
+      at JSXParserMixin.parseExportDefaultExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13924:19)
+      at JSXParserMixin.parseExport (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParserMixin.parseExport (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13845:25)
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12895:27)
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (/Users/madhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13333:36)
+9:37:33 PM [vite] (client) hmr update /src/pages/LoginPage.jsx, /src/index.css
+9:37:33 PM [vite] Internal server error: /Users/muhamadhalife/Desktop/Проект по айти/IT 
+9:37:33 PM [vite] Internal server error: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/LoginPage.jsx: Expected corresponding JSX closing tag for <form>. (2
+9:37:33 PM [vite] Internal server error: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/LoginPage.jsx: Expected corresponding JSX closing tag for <form>. (212:8)
+
+  210 |             <span             <span className="text-xs text-gray-500 italic">Защищено шифрованием SSL</span>
+  211 |           </div>
+> 212 |         </div>
+      |         ^
+  213 |       </div>
+  214 |     </div>
+  215 |   )
+  Plugin: vite:react-babel
+  File: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/LoginPage.jsx
+  File: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/LoginPage.jsx:212:8
+  210|              <span className="text-xs text-gray-500 italic">Защищено шифрованием 
+  210|              <span className="text-xs text-gray-500 italic">Защищено шифрованием SSL</span>
+  211|            </div>
+  212|          </div>
+     |          ^
+  213|        </div>
+  214|      </div>
+      at constructor (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modu
+      at constructor (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/nоект по айти/IT Team/html/
+      at JSXParserMixin.raise (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4739:16)
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4710:32)
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/ITUsers/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.jsxParseElement (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4771:19)
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11098:23)
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/DesktJSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10916:61)
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Tea
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalifop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10848:21)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10817:39
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12443:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/Users/muhamadhalife/Desktop/Проект по 
+      at JSXParserMixin.parseMaybeAssignAllowIn (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10817:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/muhamadhalife/Deskt
+      at JSXParserти/IT Team/html/node_modules/@babel/parser/lib/index.js:12510:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/Users/muhamadhalife/Desktop
+      at JSXParserMixin.parseParenAndDistinguishExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11692:28)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11348:23)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4776:20)
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExprSubscabel/parser/lib/index.js:11098:23)
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10916:61)
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Tea
+      at JSXParserMixin.parseExprOps (/Users/muhamad921:23)
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExpressionBase (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10801:23)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/inde/
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12438:16)
+      at JSXParserMixin.parseExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10797:17)
+      at JSXParserMixin.parseReturnStatement (/Users/muhamadhalife/Desktop/Проект по айт
+      at JSXParserMixin.parseReturnStatement (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13159:28)
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/ementLike (/Users/muhamadhalife/Desktop/Проект по айти/
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12784:17)
+      at JSXParserMixin.parseStatementListItem (/Users/muhamadhalife/Desktop/Проект по а
+      at JSXParserMixin.parseStatementListItem (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12764:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13333:61)
+      at JSXParserMixin.parseBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT T
+      at JSXParserMixin.parseBlockBel/parser/lib/index.js:13326:10)
+      at JSXParserMixin.parseBlock (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.parseBlock (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13314:10)
+      at JSXParserMixin.parseFunctionBody (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.parseFunctionBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12117:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/Users/muhamadhalife/Desktop/Проект 
+      at JSXParserMixin.parseFunctionBodyAndFinish (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12103:10)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по withSmartMixTopicForbiddingContext (/Users/muhamadhalife/Desktop
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12420:14)
+      at JSXParserMixin.parseFunction (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseFunction (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13461:10)
+      at JSXParserMixin.parseExportDefaultExpression (/Users/muhamadhalife/Desktop/Проек
+      at JSXParserMixin.parseExportDefaultExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13924:19)
+      at JSXParserMixin.parseExport (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParserMixin.parseExport (/Users/muhamadhalife/Desktop/Проект по �SXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12895:27)
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseModuleItem (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект
+      at JSXParserMixin.parseBlockOrModuleBlockBodarser/lib/index.js:13333:36)
+9:37:34 PM [vite] (client) hmr update /src/pages/RegisterPage.jsx, /src/index.css
+9:37:34 PM [vite] (client) hmr update /src/pages/RegisterPage.jsx, /src/index.css (x2)
+9:37:34 PM [vite] Internal server error: /Users/muhamadhalife/Desktop/Проект по айти/IT 
+9:37:34 PM [vite] Internal server error: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/RegisterPage.jsx: Expected corresponding JSX closing tag for <form>.
+9:37:34 PM [vite] Internal server error: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/RegisterPage.jsx: Expected corresponding JSX closing tag for <form>. (183:8)
+
+  181 |             <span className="text-xs text-gray-500 italic">Защищено шифрованием 
+  181 |             <span className="text-xs text-gray-500 italic">Защищено шифрованием SSL</span>
+  182 |           </div>
+> 183 |         </div>
+      |         ^
+  184 |       </div>
+  185 |     </div>
+  186 |   )
+  Plugin: vite:/src/pages/RegisterPage.
+  File: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/RegisterPage.jsx:183:8
+  181|              <span className="text-xs text-gray-500 italic">Защищено шифрованием 
+  181|              <span className="text-xs text-gray-500 italic">Защищено шифрованием SSL</span>
+  182|            </div>
+  183|          </div>
+     |          ^
+  184|        </div>
+  185|      </div>
+      at constructor (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modu
+      at constructor (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/
+      at JSXParserMixin.raise (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4739:16)
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4710:32)
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4710:32)
+      at JSXParserMixin.jsxParseElement (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.jsxParseElement (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Прое айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4771:19)
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11098:23)
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/DesktoDesktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10916:61)
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Tea
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10848:21)
+      at /Users/muhamadhalife/Desktop/Проек айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10817:39
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12443:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/Users/muhamadhalife/Desktop/Проект по 
+      at JSXParserMixin.parseMaybeAssignAllowIn (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10817:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/muhamadhalife/Deskt
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12510:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/Users/muhamadhalife/Desktop
+      at JSXife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11692:28)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11348:23)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4776:20)
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11098:23)
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at l/parser/lib/index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10916:61)
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Tea
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_moddhalife/Desktop/Проект по айти/IT
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExpressionBase (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10801:23)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10797:39
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект п�eExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10797:17)
+      at JSXParserMixin.parseReturnStatement (/Users/muhamadhalife/Desktop/Проект по айт
+      at JSXParserMixin.parseReturnStatement (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13159:28)
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12815:21)
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalif
+      at JSXParserMixin.parseStatementListItem (/Users/muhamadhalife/Desktop/Проект по а
+      at JSXParserMixin.parseStatementListItem (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12764:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13333:61)
+      at JSXParserMixin.parseBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT T
+      at JSXParserMixin.parseBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13326:10)
+      at JSXParserMixin.parseBlock (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.parseBlock (/Users/muhamadhalif3314:10)
+      at JSXParserMixin.parseFunctionBody (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.parseFunctionBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12117:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/Users/muhamadhalife/Desktop/Проект 
+      at JSXParserMixin.parseFunctionBodyAndFinish (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12103:10)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13462:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/Users/muhamadhalife/Desktop
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/Users/muhamadhalife/Desktop/Проект  at JSXParserMixin.parseFunction (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseFunction (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13461:10)
+      at JSXParserMixin.parseExportDefaultExpression (/Users/muhamadhalife/Desktop/Проек
+      at JSXParserMixin.parseExportDefaultExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13924:19)
+      at JSXParserMixin.parseExport (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParserMixin.parseExport (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13845:25)
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseStdules/@babel/parser/lib/index.js:12895:27)
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseModuleItem (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13333:36)
+9:37:36 PM [vite] (client) hmr update /src/pages/RegisterPage.jsx, /src/index.css
+9:37:36 PM [vite] Internal server error: /Users/muhamadhalife/Ders/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/RegisterPage.jsx: Expected corresponding JSX closing tag for <form>.
+9:37:36 PM [vite] Internal server error: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/RegisterPage.jsx: Expected corresponding JSX closing tag for <form>. (174:8)
+
+  172 |             <span className="text-xs text-gray-500 italic">Защищено шифрованием 
+  172 |             <span className="text-xs text-gray-500 italic">Защищено шифрованием SSL</span>
+  173 |           </div>
+> 174 |         </div>
+      |         ^
+  175 |       </div>
+  176 |     </div>
+  177 |   )
+  Plugin: vite:react-babel
+  File: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/RegisterPage.
+  File: /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/src/pages/RegisterPage.jsx:174:8
+  172|              <span lassName="text-xs text-gray-500 italic">Защищено шифрованием SSL</span>
+  173|            </div>
+  174|          </div>
+     |          ^
+  175|        </div>
+  176|      </div>
+      at constructor (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modu
+      at constructor (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/
+      at JSXParserMixin.raise (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4739:16)
+      at JSXParserMixin.jsxParseEle(/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4710:32)
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.jsxParseElementAt (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4710:32)
+      at JSXParserMixin.jsxParseElement (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.jsxParseElement (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4771:19)
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modulĕти/IT Team
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10916:61)
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Tea
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по �erMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10848:21)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10817:39
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект поseMaybeAssignAllowIn (/Users/muhamadhalife/Desktop/Проект по 
+      at JSXParserMixin.parseMaybeAssignAllowIn (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10817:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/muhamadhalife/Deskt
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12510:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/Users/muhamadhalife/Desktop
+      at JSXParserMixin.parseParenAndDistinguishExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11692:28)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhal/parser/lib/index.js:11348:23)
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseExprAtom (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:4776:20)
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExprSubscripts (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11098:23)
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParserMixin.parseUpdate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseMaybeUnary ndex.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10916:61)
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Tea
+      at JSXParserMixin.parseExprOps (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseMaybeConditional (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife/Desktop/Проект по айти/IT
+      at JSXParserMixin.parseMaybeAssign (/Users/muhamadhalife21)
+      at JSXParserMixin.parseExpressionBase (/Users/muhamadhalife/Desktop/Проект по айти
+      at JSXParserMixin.parseExpressionBase (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10801:23)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:10797:39
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.allowInAnd (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12438:16)
+      at JSXParserMixin.parseExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseExpression (/Users/muhamadhalife/Desktop/Проект по аиnStatement (/Users/muhamadhalife/Desktop/Проект по айт
+      at JSXParserMixin.parseReturnStatement (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13159:28)
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12815:21)
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12784:17)
+      at JSXParserMixin.parseStatementListItem (/Users/muhamadhalife/Desktop/Проект по а
+      at JSXParserMixin.parseStatementListItem (/Users/muhams:12764:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13333:61)
+      at JSXParserMixin.parseBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT T
+      at JSXParserMixin.parseBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13326:10)
+      at JSXParserMixin.parseBlock (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/
+      at JSXParserMixin.parseBlock (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13314:10)
+      at JSXParserMixin.parseFunctionBody (/Users/muhamadhalife/Desktop/Проект по айти/I
+      at JSXParserMixin.parseFunctionBody (/Users/muhajs:12117:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/Users/muhamadhalife/Desktop/Проект 
+      at JSXParserMixin.parseFunctionBodyAndFinish (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12103:10)
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/pa
+      at /Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13462:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/Users/muhamadhalife/Desktop
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12420:14)
+      at JSXParserMixin.parseFunction (/Users/muhamadhalife/Desktop/Проект по айти/IT Te
+      at JSXParserMixin.parseFunction (/Users/muhamadhalife/Desktop/Проект �at JSXParserMixin.parseExportDefaultExpression (/Users/muhamadhalife/Desktop/Проек
+      at JSXParserMixin.parseExportDefaultExpression (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13924:19)
+      at JSXParserMixin.parseExport (/Users/muhamadhalife/Desktop/Проект по айти/IT Team
+      at JSXParserMixin.parseExport (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13845:25)
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по ай
+      at JSXParserMixin.parseStatementContent (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12895:27)
+      at JSXParserMixin.parseStatementLike (/Users/muhamadhalife/Desktop/Проект по айти/
+      at JSXParserMixin.parseStatementLike (ser/lib/index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (/Users/muhamadhalife/Desktop/Проект по айти/IT 
+      at JSXParserMixin.parseModuleItem (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/muhamadhalife/Desktop/Проект по айти/IT Team/html/node_modules/@babel/parser/lib/index.js:13333:36)
+9:37:37 PM [vite] (client) hmr update /src/pages/RegisterPage.jsx, /src/index.css
+9:37:37 PM [vite] (client) hmr update /src/pages/RegisterPage.jsx, /src/index.css (x2)
+9:37:43 PM [vite] (client) hmr update /src/pages/LoginPage.jsx, /src/index.css
+^C[200~npm run build[201~
+npm run build

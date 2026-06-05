@@ -7,6 +7,34 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      function showStartupHelp(reason) {
+        document.body.innerHTML =
+          '<div style="max-width:520px;margin:48px auto;padding:24px;font-family:system-ui,sans-serif;line-height:1.5;color:#111">' +
+          '<h1 style="font-size:20px;margin:0 0 12px">Не удалось запустить приложение</h1>' +
+          '<p style="margin:0 0 16px;color:#444">' + reason + '</p>' +
+          '<p style="margin:0 0 8px;font-weight:600">Запустите dev-сервер в терминале:</p>' +
+          '<pre style="background:#f4f4f5;padding:12px;border-radius:8px;overflow:auto;font-size:13px">cd "html"\nnpm run dev</pre>' +
+          '<p style="margin:16px 0 0;color:#444">Затем откройте <a href="http://localhost:5173">http://localhost:5173</a></p>' +
+          '<p style="margin:12px 0 0;color:#666;font-size:14px">Не открывайте index.html двойным кликом и не используйте Live Server — Safari не выполняет .jsx без Vite.</p>' +
+          '</div>'
+      }
+
+      if (location.protocol === 'file:') {
+        showStartupHelp('Страница открыта как файл (file://). React-приложение так не запускается.')
+      }
+
+      window.addEventListener(
+        'error',
+        function (event) {
+          var message = (event.message || '') + (event.error && event.error.message ? event.error.message : '')
+          if (/text\/jsx|MIME type|Failed to load module/i.test(message)) {
+            showStartupHelp('Браузер получил .jsx с неправильным MIME-типом. Нужен Vite dev-сервер.')
+          }
+        },
+        true,
+      )
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

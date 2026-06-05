@@ -64,6 +64,35 @@ function mockChatApi() {
   }
 }
 
+function safariJsxMimeFix() {
+  return {
+    name: 'safari-jsx-mime-fix',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (req.url?.includes('.jsx')) {
+          const setHeader = res.setHeader.bind(res)
+          res.setHeader = (name, value) => {
+            if (name.toLowerCase() === 'content-type' && String(value).includes('jsx')) {
+              return setHeader('Content-Type', 'text/javascript')
+            }
+            return setHeader(name, value)
+          }
+        }
+        next()
+      })
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), mockAssignTaskApi(), mockChatApi()],
+  plugins: [react(), safariJsxMimeFix(), mockAssignTaskApi(), mockChatApi()],
+  server: {
+    port: 5173,
+    strictPort: true,
+    open: true,
+  },
+  preview: {
+    port: 5173,
+    strictPort: true,
+  },
 })

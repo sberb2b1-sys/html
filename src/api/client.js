@@ -1,11 +1,13 @@
-const DEFAULT_BASE_URL = 'http://localhost:8000/api'
+const DEV_BASE_URL = 'http://localhost:8000/api'
 
 function normalizeBaseUrl(url) {
-  if (!url) return DEFAULT_BASE_URL
+  if (!url) return ''
   return url.replace(/\/+$/, '')
 }
 
-const BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_URL) || DEFAULT_BASE_URL
+const BASE_URL =
+  normalizeBaseUrl(import.meta.env.VITE_API_URL) ||
+  (import.meta.env.DEV ? DEV_BASE_URL : '/api')
 
 function parseErrorMessage(data) {
   const detail = data?.detail

@@ -43,7 +43,10 @@ async function apiRequest(endpoint, options = {}) {
       headers,
     })
   } catch {
-    throw new Error('Не удалось подключиться к серверу. Запустите бэкенд на порту 8000.')
+    const hint = import.meta.env.DEV
+      ? 'Запустите бэкенд: cd backend && uvicorn main:app --reload --port 8000'
+      : 'API-сервер недоступен. Проверьте, что бэкенд развёрнут (api.itteam.tech).'
+    throw new Error(`Не удалось подключиться к серверу. ${hint}`)
   }
 
   if (response.status === 401) {

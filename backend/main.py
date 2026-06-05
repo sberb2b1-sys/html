@@ -205,6 +205,11 @@ app.add_middleware(
         "http://itteam.tech",
         "https://www.itteam.tech",
         "http://www.itteam.tech",
+        *[
+            origin.strip()
+            for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
+            if origin.strip()
+        ],
     ],
     allow_credentials=True,
     allow_methods=["*"],

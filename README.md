@@ -21,13 +21,16 @@ uvicorn main:app --reload --port 8000
 
 Сейчас на сайте белый экран, потому что GitHub Pages отдаёт **исходники** (`/src/main.jsx`), а не собранный `dist/`.
 
-### Что сделать один раз
+### Что сделать один раз (важно!)
 
-1. В GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**
-2. (Опционально) **Settings → Secrets and variables → Actions → Variables**  
-   Добавьте `VITE_API_URL` = `https://ваш-бэкенд/api`  
-   Если бэкенд ещё не развёрнут — страница входа откроется, но логин не сработает.
-3. Запушьте код в `main` — workflow `.github/workflows/deploy.yml` соберёт `dist/` и опубликует его.
+1. Откройте https://github.com/sberb2b1-sys/html/settings/pages
+2. **Build and deployment → Source:** выберите **Deploy from a branch**
+3. **Branch:** `gh-pages` → папка `/ (root)` → **Save**
+4. Подождите 1–2 минуты после push в `main` — workflow соберёт `dist/` и запушит в `gh-pages`
+5. (Опционально) **Settings → Secrets and variables → Actions → Variables**  
+   `VITE_API_URL` = `https://api.itteam.tech/api` (после развёртывания бэкенда)
+
+> Если Source остаётся `main` — сайт будет отдавать исходники (`/src/main.jsx`) и экран останется белым.
 
 ### DNS (reg.ru)
 

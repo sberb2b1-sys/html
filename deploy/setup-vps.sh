@@ -13,7 +13,7 @@ apt-get install -y -qq python3 python3-venv python3-pip git nginx certbot python
 
 echo "==> Клонирование репозитория..."
 mkdir -p "$APP_DIR"
-if [ ! -d "$APP_DIR/.git" ]; then
+if [ ! -d "$APP_DIR/repo/.git" ]; then
   git clone "$REPO_URL" "$APP_DIR/repo"
 else
   cd "$APP_DIR/repo" && git pull
@@ -61,7 +61,13 @@ systemctl restart itteam-api
 echo "==> Nginx..."
 cp "$APP_DIR/repo/deploy/nginx-api.conf" /etc/nginx/sites-available/api.itteam.tech
 ln -sf /etc/nginx/sites-available/api.itteam.tech /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
+
+# Открыть порты, если включён ufw
+if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then
+  ufw allow 'Nginx Full'
+fi
 
 echo ""
 echo "Готово! API слушает http://127.0.0.1:8000"

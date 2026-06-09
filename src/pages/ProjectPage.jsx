@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import AgentCard from '../components/AgentCard'
 import ConfirmDialog from '../components/ConfirmDialog'
+import SprintsManager from '../components/SprintsManager'
 import { useStore } from '../store/useStore'
 
 const TABS = [
   { id: 'tasks', label: 'Задачи' },
   { id: 'team', label: 'Команда' },
+  { id: 'sprints', label: 'Спринты' },
 ]
 
 function taskWord(count) {
@@ -28,6 +30,10 @@ export default function ProjectPage() {
   const loadProjects = useStore((s) => s.loadProjects)
   const loadTasks = useStore((s) => s.loadTasks)
   const loadAgents = useStore((s) => s.loadAgents)
+  const sprints = useStore((s) => s.sprints)
+  const loadSprints = useStore((s) => s.loadSprints)
+  const createSprint = useStore((s) => s.createSprint)
+  const assignTaskSprint = useStore((s) => s.assignTaskSprint)
   const deleteProject = useStore((s) => s.deleteProject)
 
   const [activeTab, setActiveTab] = useState('tasks')
@@ -38,6 +44,10 @@ export default function ProjectPage() {
     loadTasks()
     loadAgents()
   }, [loadProjects, loadTasks, loadAgents])
+
+  useEffect(() => {
+    if (id) loadSprints(id)
+  }, [id, loadSprints])
 
   const project = projects.find((p) => p.id === id)
 
@@ -173,6 +183,16 @@ export default function ProjectPage() {
               </div>
             )}
           </section>
+        )}
+
+        {activeTab === 'sprints' && (
+          <SprintsManager
+            projectId={id}
+            sprints={sprints}
+            tasks={tasks}
+            onCreateSprint={createSprint}
+            onAssignTaskSprint={assignTaskSprint}
+          />
         )}
       </div>
 

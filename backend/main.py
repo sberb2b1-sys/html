@@ -1,5 +1,6 @@
 import os
 from contextlib import asynccontextmanager
+from datetime import date
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -13,7 +14,15 @@ import auth
 import crud
 from database import Base, engine, get_db, run_legacy_migrations
 from migrations.add_owner_id import run_migration as run_owner_id_migration
-from models import Agent, Project, Task, User
+from migrations.sprint2 import run_sprint2_migrations
+from models import Agent, ChatMessage, GeneralMessage, Project, Sprint, Task, User
+from services.llm import (
+    DeepSeekAPIError,
+    DeepSeekNotConfigured,
+    DeepSeekRateLimit,
+    DeepSeekTimeout,
+    call_deepseek,
+)
 
 load_dotenv()
 
@@ -72,6 +81,7 @@ class TaskCreate(BaseModel):
     status: str = "todo"
     priority: str = "Medium"
     project_id: Optional[int] = None
+    sprint_id: Optional[int] = None
     assignee_agent_id: Optional[str] = None
 
 
@@ -81,7 +91,12 @@ class TaskUpdate(BaseModel):
     status: Optional[str] = None
     priority: Optional[str] = None
     project_id: Optional[int] = None
+    sprint_id: Optional[int] = None
     assignee_agent_id: Optional[str] = None
+
+
+class TaskSprintUpdate(BaseModel):
+    sprint_id: Optional[int] = None
 
 
 class TaskStatusUpdate(BaseModel):
@@ -95,6 +110,7 @@ class TaskResponse(BaseModel):
     status: str
     priority: str
     project_id: Optional[int] = None
+    sprint_id: Optional[int] = None
     assignee_agent_id: Optional[str] = None
     created_at: Optional[str] = None
 
@@ -102,11 +118,56 @@ class TaskResponse(BaseModel):
         from_attributes = True
 
 
+class SprintCreate(BaseModel):
+    project_id: int
+    name: str
+    start_date: date
+    end_date: date
+    status: str = "planning"
+
+
+class SprintUpdate(BaseModel):
+    name: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    status: Optional[str] = None
+
+
+class SprintResponse(BaseModel):
+    id: int
+    project_id: int
+    name: str
+    start_date: date
+    end_date: date
+    status: str
+
+    class Config:
+        from_attributes = True
+
+
+class AgentCreate(BaseModel):
+    id: str = Field(min_length=1, max_length=50)
+    name: str
+    role: str
+    system_prompt: str = ""
+    avatar_url: str = ""
+    is_online: bool = True
+
+
+class AgentUpdate(BaseModel):
+    name: Optional[str] = None
+    role: Optional[str] = None
+    system_prompt: Optional[str] = None
+    avatar_url: Optional[str] = None
+    is_online: Optional[bool] = None
+
+
 class AgentResponse(BaseModel):
     id: str
     name: str
     role: str
     system_prompt: str
+    avatar_url: str = ""
     is_online: bool
 
     class Config:
@@ -121,56 +182,39 @@ class ChatMessageUpdate(BaseModel):
     message: str = Field(min_length=1)
 
 
-class ChatResponse(BaseModel):
+class ChatMessageResponse(BaseModel):
     id: int
     agent_id: str
-    user_message: str
-    agent_response: str
-    reply: str
-    timestamp: Optional[str] = None
+    role: str
+    content: str
+    created_at: Optional[str] = None
 
     class Config:
         from_attributes = True
 
 
-# ---------------------------------------------------------------------------
-# Mock-ответы чата (без DeepSeek)
-# ---------------------------------------------------------------------------
+class ChatExchangeResponse(BaseModel):
+    user_message: ChatMessageResponse
+    agent_message: ChatMessageResponse
 
-MOCK_AGENT_REPLIES: dict[str, str] = {
-    "ba": (
-        "Принял ваш запрос как бизнес-аналитик. «{message}» — предлагаю оформить "
-        "user story и критерии приёмки. [mock]"
-    ),
-    "sa": (
-        "Как системный аналитик уточню детали по «{message}» и подготовлю "
-        "техническое описание. [mock]"
-    ),
-    "arch": (
-        "С точки зрения архитектуры по теме «{message}» рекомендую разбить "
-        "на сервисы и описать интеграции. [mock]"
-    ),
-    "fe": (
-        "Фронтенд-перспектива: для «{message}» нужны компоненты, состояние "
-        "и маршрутизация. [mock]"
-    ),
-    "be": (
-        "Бэкенд-перспектива: для «{message}» спроектируем API и модели данных. [mock]"
-    ),
-    "lead": (
-        "Как техлид по «{message}» оценю риски, сроки и распределю задачи команде. [mock]"
-    ),
-    "design": (
-        "Дизайнерский взгляд на «{message}»: набросаю wireframe и UI-паттерны. [mock]"
-    ),
-    "sm": (
-        "Скрам-мастер: по «{message}» добавим в бэклог и спланируем спринт. [mock]"
-    ),
-}
 
-DEFAULT_MOCK_REPLY = (
-    "Спасибо за сообщение! {agent_name} ({role}) получил: «{message}». [mock]"
-)
+class GeneralMessageCreate(BaseModel):
+    project_id: int
+    content: str = Field(min_length=1)
+    agent_id: Optional[str] = None
+
+
+class GeneralMessageResponse(BaseModel):
+    id: int
+    project_id: int
+    user_id: int
+    user_name: str
+    agent_id: Optional[str] = None
+    content: str
+    created_at: Optional[str] = None
+
+    class Config:
+        from_attributes = True
 
 
 # ---------------------------------------------------------------------------
@@ -183,6 +227,7 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     run_owner_id_migration(engine)
     run_legacy_migrations()
+    run_sprint2_migrations()
     db = next(get_db())
     try:
         crud.seed_agents(db)
@@ -244,19 +289,53 @@ def task_to_response(task: Task) -> TaskResponse:
         status=task.status,
         priority=task.priority,
         project_id=task.project_id,
+        sprint_id=task.sprint_id,
         assignee_agent_id=task.assignee_agent_id,
         created_at=task.created_at.isoformat() if task.created_at else None,
     )
 
 
-def generate_mock_response(agent: Agent, message: str) -> str:
-    template = MOCK_AGENT_REPLIES.get(agent.id)
-    if template:
-        return template.format(message=message)
-    return DEFAULT_MOCK_REPLY.format(
-        agent_name=agent.name,
+def sprint_to_response(sprint: Sprint) -> SprintResponse:
+    return SprintResponse(
+        id=sprint.id,
+        project_id=sprint.project_id,
+        name=sprint.name,
+        start_date=sprint.start_date,
+        end_date=sprint.end_date,
+        status=sprint.status,
+    )
+
+
+def chat_msg_to_response(message: ChatMessage) -> ChatMessageResponse:
+    return ChatMessageResponse(
+        id=message.id,
+        agent_id=message.agent_id,
+        role=message.role,
+        content=message.content,
+        created_at=message.created_at.isoformat() if message.created_at else None,
+    )
+
+
+def general_msg_to_response(message: GeneralMessage, user_name: str) -> GeneralMessageResponse:
+    return GeneralMessageResponse(
+        id=message.id,
+        project_id=message.project_id,
+        user_id=message.user_id,
+        user_name=user_name,
+        agent_id=message.agent_id,
+        content=message.content,
+        created_at=message.created_at.isoformat() if message.created_at else None,
+    )
+
+
+def agent_to_response(agent: Agent) -> AgentResponse:
+    return AgentResponse(
+        id=agent.id,
+        name=agent.name,
         role=agent.role,
-        message=message,
+        system_prompt=agent.system_prompt or "",
+        avatar_url=agent.avatar_url or "",
+        is_online=agent.is_online,
     )
 
 
@@ -445,6 +524,22 @@ def patch_task_status(
     return task_to_response(updated)
 
 
+@app.patch("/api/tasks/{task_id}/sprint", response_model=TaskResponse)
+def patch_task_sprint(
+    task_id: int,
+    payload: TaskSprintUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    task = crud.get_task(db, task_id, current_user.id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Задача не найдена")
+    updated = crud.assign_task_sprint(db, task, payload.sprint_id, current_user.id)
+    if not updated:
+        raise HTTPException(status_code=400, detail="Спринт не принадлежит проекту задачи")
+    return task_to_response(updated)
+
+
 @app.delete("/api/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_task(
     task_id: int,
@@ -458,6 +553,59 @@ def delete_task(
 
 
 # ---------------------------------------------------------------------------
+# Sprints (JWT)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/api/sprints", response_model=list[SprintResponse])
+def list_sprints(
+    project_id: int = Query(..., description="ID проекта"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    ensure_project_belongs_to_user(db, project_id, current_user.id)
+    return [sprint_to_response(s) for s in crud.get_sprints(db, project_id, current_user.id)]
+
+
+@app.post("/api/sprints", response_model=SprintResponse, status_code=status.HTTP_201_CREATED)
+def create_sprint(
+    payload: SprintCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    sprint = crud.create_sprint(db, current_user.id, payload.model_dump())
+    if not sprint:
+        raise HTTPException(status_code=404, detail="Проект не найден")
+    return sprint_to_response(sprint)
+
+
+@app.put("/api/sprints/{sprint_id}", response_model=SprintResponse)
+def update_sprint(
+    sprint_id: int,
+    payload: SprintUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    sprint = crud.get_sprint(db, sprint_id, current_user.id)
+    if not sprint:
+        raise HTTPException(status_code=404, detail="Спринт не найден")
+    updated = crud.update_sprint(db, sprint, payload.model_dump(exclude_unset=True))
+    return sprint_to_response(updated)
+
+
+@app.delete("/api/sprints/{sprint_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_sprint(
+    sprint_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    sprint = crud.get_sprint(db, sprint_id, current_user.id)
+    if not sprint:
+        raise HTTPException(status_code=404, detail="Спринт не найден")
+    crud.delete_sprint(db, sprint)
+
+
+# ---------------------------------------------------------------------------
 # Agents (JWT)
 # ---------------------------------------------------------------------------
 
@@ -467,15 +615,76 @@ def list_agents(
     db: Session = Depends(get_db),
     current_user: User = Depends(auth.get_current_user),
 ):
-    return crud.get_agents(db)
+    return [agent_to_response(a) for a in crud.get_agents(db)]
+
+
+@app.post("/api/agents", response_model=AgentResponse, status_code=status.HTTP_201_CREATED)
+def create_agent(
+    payload: AgentCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    if crud.get_agent(db, payload.id):
+        raise HTTPException(status_code=400, detail="Агент с таким ID уже существует")
+    agent = crud.create_agent(db, payload.model_dump())
+    return agent_to_response(agent)
+
+
+@app.put("/api/agents/{agent_id}", response_model=AgentResponse)
+def update_agent(
+    agent_id: str,
+    payload: AgentUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    agent = crud.get_agent(db, agent_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="Агент не найден")
+    updated = crud.update_agent(db, agent, payload.model_dump(exclude_unset=True))
+    return agent_to_response(updated)
+
+
+@app.delete("/api/agents/{agent_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_agent(
+    agent_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    agent = crud.get_agent(db, agent_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="Агент не найден")
+    crud.delete_agent(db, agent)
 
 
 # ---------------------------------------------------------------------------
-# Chat — mock (JWT)
+# Chat — DeepSeek (JWT)
 # ---------------------------------------------------------------------------
 
 
-@app.post("/api/chat/{agent_id}", response_model=ChatResponse)
+@app.get("/api/chat/history/{agent_id}", response_model=list[ChatMessageResponse])
+def get_chat_history(
+    agent_id: str,
+    limit: int = Query(50, ge=1, le=100),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    agent = crud.get_agent(db, agent_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="Агент не найден")
+    messages = crud.get_chat_history(db, current_user.id, agent_id, limit=limit)
+    return [chat_msg_to_response(m) for m in messages]
+
+
+@app.get("/api/chat/{agent_id}/messages", response_model=list[ChatMessageResponse])
+def list_chat_messages_legacy(
+    agent_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    return get_chat_history(agent_id, 50, db, current_user)
+
+
+@app.post("/api/chat/{agent_id}", response_model=ChatExchangeResponse)
 def send_chat_message(
     agent_id: str,
     payload: ChatRequest,
@@ -486,70 +695,55 @@ def send_chat_message(
     if not agent:
         raise HTTPException(status_code=404, detail="Агент не найден")
 
-    agent_response = generate_mock_response(agent, payload.message)
-    message = crud.create_chat_message(
-        db,
-        user_id=current_user.id,
-        agent_id=agent_id,
-        user_message=payload.message,
-        agent_response=agent_response,
-    )
+    crud.check_and_increment_llm_calls(db, current_user)
 
-    return ChatResponse(
-        id=message.id,
-        agent_id=message.agent_id,
-        user_message=message.user_message,
-        agent_response=message.agent_response,
-        reply=message.agent_response,
-        timestamp=message.timestamp.isoformat() if message.timestamp else None,
-    )
-
-
-@app.get("/api/chat/{agent_id}/messages", response_model=list[ChatResponse])
-def list_chat_messages(
-    agent_id: str,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(auth.get_current_user),
-):
-    agent = crud.get_agent(db, agent_id)
-    if not agent:
-        raise HTTPException(status_code=404, detail="Агент не найден")
-
-    messages = crud.get_chat_messages(db, current_user.id, agent_id)
-    return [
-        ChatResponse(
-            id=m.id,
-            agent_id=m.agent_id,
-            user_message=m.user_message,
-            agent_response=m.agent_response,
-            reply=m.agent_response,
-            timestamp=m.timestamp.isoformat() if m.timestamp else None,
-        )
-        for m in messages
+    history = crud.get_chat_history(db, current_user.id, agent_id, limit=10)
+    context = [
+        {
+            "role": "assistant" if m.role == "assistant" else "user",
+            "content": m.content,
+        }
+        for m in history
     ]
+    context.append({"role": "user", "content": payload.message})
+
+    try:
+        reply = call_deepseek(context, agent.system_prompt or "")
+    except DeepSeekNotConfigured:
+        raise HTTPException(status_code=503, detail="DeepSeek API не настроен")
+    except DeepSeekRateLimit as exc:
+        raise HTTPException(status_code=429, detail=str(exc))
+    except DeepSeekTimeout as exc:
+        raise HTTPException(status_code=504, detail=str(exc))
+    except DeepSeekAPIError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+    user_row = crud.add_chat_message(
+        db, current_user.id, agent_id, "user", payload.message
+    )
+    agent_row = crud.add_chat_message(
+        db, current_user.id, agent_id, "assistant", reply
+    )
+
+    return ChatExchangeResponse(
+        user_message=chat_msg_to_response(user_row),
+        agent_message=chat_msg_to_response(agent_row),
+    )
 
 
-@app.put("/api/chat/messages/{message_id}", response_model=ChatResponse)
+@app.put("/api/chat/messages/{message_id}", response_model=ChatMessageResponse)
 def update_chat_message(
     message_id: int,
     payload: ChatMessageUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(auth.get_current_user),
 ):
-    message = crud.update_chat_message_text(
+    message = crud.update_chat_message_content(
         db, message_id, current_user.id, payload.message
     )
     if not message:
         raise HTTPException(status_code=404, detail="Сообщение не найдено")
-
-    return ChatResponse(
-        id=message.id,
-        agent_id=message.agent_id,
-        user_message=message.user_message,
-        agent_response=message.agent_response,
-        reply=message.agent_response,
-        timestamp=message.timestamp.isoformat() if message.timestamp else None,
-    )
+    return chat_msg_to_response(message)
 
 
 @app.delete("/api/chat/messages/{message_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -560,3 +754,42 @@ def remove_chat_message(
 ):
     if not crud.delete_chat_message(db, message_id, current_user.id):
         raise HTTPException(status_code=404, detail="Сообщение не найдено")
+
+
+# ---------------------------------------------------------------------------
+# General chat (JWT)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/api/chat/general", response_model=list[GeneralMessageResponse])
+def list_general_messages(
+    project_id: int = Query(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    messages = crud.get_general_messages(db, project_id, current_user.id)
+    result = []
+    for m in messages:
+        user = crud.get_user(db, m.user_id)
+        result.append(general_msg_to_response(m, user.name if user else "User"))
+    return result
+
+
+@app.post("/api/chat/general", response_model=GeneralMessageResponse, status_code=status.HTTP_201_CREATED)
+def post_general_message(
+    payload: GeneralMessageCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    if payload.agent_id and not crud.get_agent(db, payload.agent_id):
+        raise HTTPException(status_code=404, detail="Агент не найден")
+    message = crud.create_general_message(
+        db,
+        payload.project_id,
+        current_user.id,
+        payload.content,
+        payload.agent_id,
+    )
+    if not message:
+        raise HTTPException(status_code=404, detail="Проект не найден")
+    return general_msg_to_response(message, current_user.name)

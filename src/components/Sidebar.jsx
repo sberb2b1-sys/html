@@ -3,13 +3,17 @@ import { useStore } from '../store/useStore'
 import { getDisplayUser } from '../utils/mask'
 import RoleSwitcher, { getRoleAvatarColor, getRoleLabel } from './RoleSwitcher'
 
-const navItems = [
+const baseNavItems = [
   { to: '/dashboard', label: 'Дашборд', icon: 'grid' },
   { to: '/projects', label: 'Проекты', icon: 'folder' },
   { to: '/backlog', label: 'Бэклог', icon: 'list' },
   { to: '/chats', label: 'Чаты агентов', icon: 'chat' },
   { to: '/general-chat', label: 'Общий чат', icon: 'team' },
   { to: '/stats', label: 'Статистика', icon: 'chart' },
+]
+
+const poNavItems = [
+  { to: '/admin/agents', label: 'Агенты', icon: 'agents' },
 ]
 
 function NavIcon({ type }) {
@@ -49,6 +53,13 @@ function NavIcon({ type }) {
         <path d="M3 15V9M7 15V5M11 15V7M15 15V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     ),
+    agents: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M3 16C3 13 5.5 11 9 11C12.5 11 15 13 15 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M14 4L16 2M16 2L14 0M16 2H13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" transform="translate(-1, 1)" />
+      </svg>
+    ),
   }
   return icons[type] || null
 }
@@ -73,6 +84,10 @@ export default function Sidebar() {
     logout()
     navigate('/login')
   }
+
+  const navItems = userRole === 'po'
+    ? [...baseNavItems.slice(0, 4), ...poNavItems, ...baseNavItems.slice(4)]
+    : baseNavItems
 
   return (
     <aside className="w-[260px] min-h-screen bg-dark-sidebar flex flex-col shrink-0">

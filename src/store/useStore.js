@@ -1,14 +1,19 @@
 import { create } from 'zustand'
 import toast from 'react-hot-toast'
-import { auth, projects, tasks, agents, chat } from '../api/client'
+import { auth, projects, tasks, agents, chat, sprints as sprintsApi } from '../api/client'
 import {
   mapAgentFromApi,
+  mapAgentToApi,
   mapProjectFromApi,
   mapProjectToApi,
   mapTaskFromApi,
   mapTaskToApi,
-  mapChatResponse,
+  mapChatExchange,
   mapChatHistory,
+  mapChatMessageFromApi,
+  mapGeneralMessageFromApi,
+  mapSprintFromApi,
+  mapSprintToApi,
   parseChatMessageId,
 } from '../api/mappers'
 import { safeLog } from '../utils/mask'
@@ -29,6 +34,8 @@ const getEmptyState = () => ({
   isAuthReady: false,
   userRole: 'po',
   generalChatMessages: [],
+  sprints: [],
+  activeGeneralProjectId: null,
 })
 
 async function fetchLists(get) {
@@ -146,12 +153,12 @@ export const useStore = create((set, get) => ({
 
     try {
       const response = await chat.updateMessage(dbId, text)
-      const { userMessage } = mapChatResponse(response)
+      const updated = mapChatMessageFromApi(response)
       set((state) => ({
         chatMessages: {
           ...state.chatMessages,
           [agentId]: (state.chatMessages[agentId] || []).map((m) =>
-            m.id === messageId ? { ...m, text: userMessage.text } : m
+            m.id === messageId ? { ...m, text: updated.text } : m
           ),
         },
       }))
@@ -180,9 +187,7 @@ export const useStore = create((set, get) => ({
       set((state) => ({
         chatMessages: {
           ...state.chatMessages,
-          [agentId]: (state.chatMessages[agentId] || []).filter(
-            (m) => m.id !== messageId && m.id !== `msg-${dbId}-agent`
-          ),
+          [agentId]: (state.chatMessages[agentId] || []).filter((m) => m.id !== messageId),
         },
       }))
       toast.success('Сообщение удалено')
@@ -208,30 +213,31 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  sendGeneralChatMessage: (message) => {
+  sendGeneralChatMessage: async (message, projectId) => {
     const text = message.trim()
-    if (!text) return
+    if (!text || !projectId) return
 
-    const time = new Date().toLocaleTimeString('ru-RU', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-    const userMsg = {
-      id: `gen-user-${Date.now()}`,
-      from: 'user',
-      text,
-      time,
+    try {
+      const saved = await chat.sendGeneral({ project_id: projectId, content: text })
+      set((state) => ({
+        generalChatMessages: [...state.generalChatMessages, mapGeneralMessageFromApi(saved)],
+      }))
+    } catch (error) {
+      toast.error(error.message || 'Не удалось отправить сообщение')
     }
-    const agentMsg = {
-      id: `gen-agent-${Date.now()}`,
-      from: 'agent',
-      text: 'Сообщение получено командой.',
-      time,
-    }
+  },
 
-    set((state) => ({
-      generalChatMessages: [...state.generalChatMessages, userMsg, agentMsg],
-    }))
+  loadGeneralChat: async (projectId) => {
+    if (!projectId) return
+    try {
+      const records = await chat.getGeneral(projectId)
+      set({
+        activeGeneralProjectId: projectId,
+        generalChatMessages: records.map(mapGeneralMessageFromApi),
+      })
+    } catch (error) {
+      toast.error(error.message || 'Не удалось загрузить общий чат')
+    }
   },
 
   updateGeneralChatMessage: (messageId, text) => {
@@ -246,6 +252,99 @@ export const useStore = create((set, get) => ({
     set((state) => ({
       generalChatMessages: state.generalChatMessages.filter((m) => m.id !== messageId),
     }))
+  },
+
+  loadSprints: async (projectId) => {
+    try {
+      const raw = await sprintsApi.getAll(projectId)
+      const mapped = raw.map(mapSprintFromApi)
+      set((state) => ({
+        sprints: [
+          ...state.sprints.filter((s) => s.projectId !== projectId),
+          ...mapped,
+        ],
+      }))
+    } catch (error) {
+      toast.error(error.message || 'Не удалось загрузить спринты')
+    }
+  },
+
+  loadAllSprints: async () => {
+    const projectIds = get().projects.map((p) => p.id)
+    await Promise.all(projectIds.map((id) => get().loadSprints(id)))
+  },
+
+  createSprint: async (data) => {
+    try {
+      await sprintsApi.create(mapSprintToApi(data))
+      await get().loadSprints(data.projectId)
+      toast.success('Спринт создан')
+    } catch (error) {
+      toast.error(error.message || 'Не удалось создать спринт')
+    }
+  },
+
+  updateSprint: async (id, data, projectId) => {
+    try {
+      await sprintsApi.update(id, mapSprintToApi({ ...data, projectId: data.projectId || projectId }))
+      await get().loadSprints(projectId)
+      toast.success('Спринт обновлён')
+    } catch (error) {
+      toast.error(error.message || 'Не удалось обновить спринт')
+    }
+  },
+
+  deleteSprint: async (id, projectId) => {
+    try {
+      await sprintsApi.delete(id)
+      await get().loadSprints(projectId)
+      await get().loadTasks()
+      toast.success('Спринт удалён')
+    } catch (error) {
+      toast.error(error.message || 'Не удалось удалить спринт')
+    }
+  },
+
+  assignTaskSprint: async (taskId, sprintId) => {
+    try {
+      await tasks.assignSprint(taskId, sprintId)
+      await get().loadTasks()
+      toast.success('Спринт задачи обновлён')
+    } catch (error) {
+      toast.error(error.message || 'Не удалось привязать спринт')
+    }
+  },
+
+  createAgent: async (data) => {
+    try {
+      await agents.create(mapAgentToApi(data))
+      await get().loadAgents()
+      toast.success('Агент создан')
+    } catch (error) {
+      toast.error(error.message || 'Не удалось создать агента')
+    }
+  },
+
+  updateAgent: async (id, data) => {
+    try {
+      const payload = mapAgentToApi(data)
+      delete payload.id
+      await agents.update(id, payload)
+      await get().loadAgents()
+      toast.success('Агент обновлён')
+    } catch (error) {
+      toast.error(error.message || 'Не удалось обновить агента')
+    }
+  },
+
+  deleteAgent: async (id) => {
+    try {
+      await agents.delete(id)
+      await get().loadAgents()
+      toast.success('Агент удалён')
+    } catch (error) {
+      toast.error(error.message || 'Не удалось удалить агента')
+    }
   },
 
   loadProjects: async () => {
@@ -402,7 +501,7 @@ export const useStore = create((set, get) => ({
 
     try {
       const response = await chat.send(agentId, text)
-      const { userMessage: savedUser, agentMessage } = mapChatResponse(response)
+      const { userMessage: savedUser, agentMessage } = mapChatExchange(response)
 
       set((state) => {
         const history = state.chatMessages[agentId] || []
@@ -416,8 +515,18 @@ export const useStore = create((set, get) => ({
         }
       })
     } catch (error) {
-      set({ isAgentTyping: false })
-      toast.error(error.message || 'не удалось отправить сообщение')
+      set((state) => ({
+        isAgentTyping: false,
+        chatMessages: {
+          ...state.chatMessages,
+          [agentId]: (state.chatMessages[agentId] || []).filter((m) => m.id !== userMessage.id),
+        },
+      }))
+      const msg =
+        error.status === 429
+          ? 'Лимит запросов исчерпан на сегодня'
+          : error.message || 'Не удалось отправить сообщение'
+      toast.error(msg)
     }
   },
 

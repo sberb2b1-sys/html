@@ -27,7 +27,7 @@ const columnColors = {
   done: 'border-t-status-green',
 }
 
-function KanbanColumn({ column, tasks, agents, onEdit, onDelete }) {
+function KanbanColumn({ column, tasks, agents, sprints, onEdit, onDelete, onAssignSprint }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id })
   const taskIds = tasks.map((t) => t.id)
 
@@ -51,8 +51,10 @@ function KanbanColumn({ column, tasks, agents, onEdit, onDelete }) {
               key={task.id}
               task={task}
               agents={agents}
+              sprints={sprints}
               onEdit={onEdit}
               onDelete={onDelete}
+              onAssignSprint={onAssignSprint}
             />
           ))}
         </div>
@@ -64,8 +66,13 @@ function KanbanColumn({ column, tasks, agents, onEdit, onDelete }) {
 export default function BacklogPage() {
   const tasks = useStore((s) => s.tasks)
   const agents = useStore((s) => s.agents)
+  const projects = useStore((s) => s.projects)
+  const sprints = useStore((s) => s.sprints)
   const loadTasks = useStore((s) => s.loadTasks)
   const loadAgents = useStore((s) => s.loadAgents)
+  const loadProjects = useStore((s) => s.loadProjects)
+  const loadAllSprints = useStore((s) => s.loadAllSprints)
+  const assignTaskSprint = useStore((s) => s.assignTaskSprint)
   const updateTaskStatus = useStore((s) => s.updateTaskStatus)
   const reorderColumn = useStore((s) => s.reorderColumn)
   const createTask = useStore((s) => s.createTask)
@@ -75,7 +82,14 @@ export default function BacklogPage() {
   useEffect(() => {
     loadTasks()
     loadAgents()
-  }, [loadTasks, loadAgents])
+    loadProjects()
+  }, [loadTasks, loadAgents, loadProjects])
+
+  useEffect(() => {
+    if (projects.length > 0) {
+      loadAllSprints()
+    }
+  }, [projects, loadAllSprints])
 
   const [editingTask, setEditingTask] = useState(null)
   const [createOpen, setCreateOpen] = useState(false)
@@ -195,8 +209,10 @@ export default function BacklogPage() {
                   column={column}
                   tasks={columnTasks}
                   agents={agents}
+                  sprints={sprints}
                   onEdit={setEditingTask}
                   onDelete={setDeleteTarget}
+                  onAssignSprint={assignTaskSprint}
                 />
               )
             })}

@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -13,10 +13,13 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     name = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
+    llm_calls_today = Column(Integer, default=0, nullable=False)
+    last_call_reset = Column(Date, nullable=True)
 
     projects = relationship("Project", back_populates="owner", cascade="all, delete-orphan")
     tasks = relationship("Task", back_populates="owner", cascade="all, delete-orphan")
     chat_messages = relationship("ChatMessage", back_populates="user")
+    general_messages = relationship("GeneralMessage", back_populates="user")
 
 
 class Project(Base):
@@ -31,6 +34,22 @@ class Project(Base):
 
     owner = relationship("User", back_populates="projects")
     tasks = relationship("Task", back_populates="project", cascade="all, delete-orphan")
+    sprints = relationship("Sprint", back_populates="project", cascade="all, delete-orphan")
+    general_messages = relationship("GeneralMessage", back_populates="project", cascade="all, delete-orphan")
+
+
+class Sprint(Base):
+    __tablename__ = "sprints"
+
+    id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False, index=True)
+    name = Column(String(255), nullable=False)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+    status = Column(String(50), default="planning", nullable=False)
+
+    project = relationship("Project", back_populates="sprints")
+    tasks = relationship("Task", back_populates="sprint")
 
 
 class Agent(Base):
@@ -40,10 +59,12 @@ class Agent(Base):
     name = Column(String(255), nullable=False)
     role = Column(String(255), nullable=False)
     system_prompt = Column(Text, default="")
+    avatar_url = Column(String(500), default="")
     is_online = Column(Boolean, default=True, nullable=False)
 
     tasks = relationship("Task", back_populates="assignee_agent")
     chat_messages = relationship("ChatMessage", back_populates="agent")
+    general_messages = relationship("GeneralMessage", back_populates="agent")
 
 
 class Task(Base):
@@ -56,11 +77,13 @@ class Task(Base):
     status = Column(String(50), default="todo", nullable=False, index=True)
     priority = Column(String(50), default="Medium", nullable=False)
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    sprint_id = Column(Integer, ForeignKey("sprints.id"), nullable=True, index=True)
     assignee_agent_id = Column(String(50), ForeignKey("agents.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     owner = relationship("User", back_populates="tasks")
     project = relationship("Project", back_populates="tasks")
+    sprint = relationship("Sprint", back_populates="tasks")
     assignee_agent = relationship("Agent", back_populates="tasks")
 
 
@@ -70,9 +93,24 @@ class ChatMessage(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     agent_id = Column(String(50), ForeignKey("agents.id"), nullable=False, index=True)
-    user_message = Column(Text, nullable=False)
-    agent_response = Column(Text, nullable=False)
-    timestamp = Column(DateTime(timezone=True), server_default=func.now())
+    role = Column(String(20), nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="chat_messages")
     agent = relationship("Agent", back_populates="chat_messages")
+
+
+class GeneralMessage(Base):
+    __tablename__ = "general_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    agent_id = Column(String(50), ForeignKey("agents.id"), nullable=True)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    project = relationship("Project", back_populates="general_messages")
+    user = relationship("User", back_populates="general_messages")
+    agent = relationship("Agent", back_populates="general_messages")

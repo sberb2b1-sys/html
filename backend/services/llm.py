@@ -3,7 +3,7 @@ from typing import Any
 
 from openai import APIConnectionError, APITimeoutError, OpenAI, RateLimitError
 
-DEEPSEEK_BASE_URL = "https://api.deepseek.com"
+DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1").rstrip("/")
 DEFAULT_MODEL = "deepseek-chat"
 DEFAULT_TIMEOUT = 60.0
 

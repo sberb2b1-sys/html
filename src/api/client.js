@@ -146,14 +146,36 @@ export const tasks = {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     }),
+  assignSprint: (id, sprintId) =>
+    apiRequest(`/tasks/${id}/sprint`, {
+      method: 'PATCH',
+      body: JSON.stringify({ sprint_id: sprintId }),
+    }),
+}
+
+export const sprints = {
+  getAll: (projectId) => apiRequest(`/sprints?project_id=${projectId}`),
+  create: (data) =>
+    apiRequest('/sprints', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) =>
+    apiRequest(`/sprints/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => apiRequest(`/sprints/${id}`, { method: 'DELETE' }),
 }
 
 export const agents = {
   getAll: () => apiRequest('/agents'),
+  create: (data) =>
+    apiRequest('/agents', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) =>
+    apiRequest(`/agents/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => apiRequest(`/agents/${id}`, { method: 'DELETE' }),
 }
 
 export const chat = {
-  getMessages: (agentId) => apiRequest(`/chat/${agentId}/messages`),
+  getHistory: (agentId, limit = 50) =>
+    apiRequest(`/chat/history/${agentId}?limit=${limit}`),
+
+  getMessages: (agentId) => apiRequest(`/chat/history/${agentId}?limit=50`),
 
   send: (agentId, message) =>
     apiRequest(`/chat/${agentId}`, {
@@ -169,4 +191,12 @@ export const chat = {
 
   deleteMessage: (messageId) =>
     apiRequest(`/chat/messages/${messageId}`, { method: 'DELETE' }),
+
+  getGeneral: (projectId) => apiRequest(`/chat/general?project_id=${projectId}`),
+
+  sendGeneral: (data) =>
+    apiRequest('/chat/general', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 }

@@ -13,6 +13,7 @@ import ChatsPage from './pages/ChatsPage'
 import GeneralChatPage from './pages/GeneralChatPage'
 import StatsPage from './pages/StatsPage'
 import BacklogPage from './pages/BacklogPage'
+import AdminAgentsPage from './pages/AdminAgentsPage'
 import { useStore } from './store/useStore'
 
 function AuthBootstrap({ children }) {
@@ -70,6 +71,7 @@ export default function App() {
               <Route path="/general-chat" element={<GeneralChatPage />} />
               <Route path="/stats" element={<StatsPage />} />
               <Route path="/backlog" element={<BacklogPage />} />
+              <Route path="/admin/agents" element={<AdminAgentsPage />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

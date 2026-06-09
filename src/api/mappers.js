@@ -24,11 +24,45 @@ export function mapAgentFromApi(agent) {
     name: agent.name,
     role: agent.role,
     roleShort: agent.role,
+    systemPrompt: agent.system_prompt || '',
+    avatarUrl: agent.avatar_url || '',
     status: 'В работе',
     online: agent.is_online,
     avatarColor: AGENT_COLORS[agent.id] || '#7C3AED',
     lastMessage: '',
     activity: agent.role,
+  }
+}
+
+export function mapAgentToApi(data) {
+  return {
+    id: data.id,
+    name: data.name,
+    role: data.role,
+    system_prompt: data.systemPrompt || data.system_prompt || '',
+    avatar_url: data.avatarUrl || data.avatar_url || '',
+    is_online: data.isOnline ?? data.is_online ?? true,
+  }
+}
+
+export function mapSprintFromApi(sprint) {
+  return {
+    id: sprint.id,
+    projectId: sprint.project_id,
+    name: sprint.name,
+    startDate: sprint.start_date,
+    endDate: sprint.end_date,
+    status: sprint.status,
+  }
+}
+
+export function mapSprintToApi(data) {
+  return {
+    project_id: data.projectId,
+    name: data.name,
+    start_date: data.startDate,
+    end_date: data.endDate,
+    status: data.status || 'planning',
   }
 }
 
@@ -43,6 +77,7 @@ export function mapTaskFromApi(task, agents = [], projects = []) {
     status: task.status,
     priority: task.priority,
     projectId: task.project_id ?? null,
+    sprintId: task.sprint_id ?? null,
     project: project?.name || '',
     assigneeAgentId: task.assignee_agent_id ?? null,
     assignee: agent?.name || '',
@@ -87,39 +122,43 @@ export function mapTaskToApi(data, agents = []) {
     status: data.status || 'todo',
     priority: data.priority || 'Medium',
     project_id: data.projectId ?? data.project_id ?? null,
+    sprint_id: data.sprintId ?? data.sprint_id ?? null,
     assignee_agent_id: data.assigneeAgentId ?? agent?.id ?? null,
   }
 }
 
-export function mapChatResponse(response) {
-  const time = formatTime(response.timestamp)
+export function mapChatMessageFromApi(msg) {
   return {
-    userMessage: {
-      id: `msg-${response.id}-user`,
-      chatId: response.id,
-      from: 'user',
-      text: response.user_message,
-      time,
-    },
-    agentMessage: {
-      id: `msg-${response.id}-agent`,
-      chatId: response.id,
-      from: 'agent',
-      text: response.reply || response.agent_response,
-      time,
-    },
+    id: String(msg.id),
+    from: msg.role === 'assistant' ? 'agent' : 'user',
+    text: msg.content,
+    time: formatTime(msg.created_at),
+  }
+}
+
+export function mapChatExchange(response) {
+  return {
+    userMessage: mapChatMessageFromApi(response.user_message),
+    agentMessage: mapChatMessageFromApi(response.agent_message),
   }
 }
 
 export function mapChatHistory(records) {
-  return records.flatMap((record) => {
-    const { userMessage, agentMessage } = mapChatResponse(record)
-    return [userMessage, agentMessage]
-  })
+  return records.map(mapChatMessageFromApi)
 }
 
-/** Извлекает ID записи в БД из id пузырька чата (msg-42-user → 42). */
+export function mapGeneralMessageFromApi(msg) {
+  return {
+    id: String(msg.id),
+    from: 'user',
+    userName: msg.user_name,
+    text: msg.content,
+    time: formatTime(msg.created_at),
+    agentId: msg.agent_id,
+  }
+}
+
 export function parseChatMessageId(messageId) {
-  const match = String(messageId).match(/^msg-(\d+)-user$/)
-  return match ? Number(match[1]) : null
+  const num = Number(messageId)
+  return Number.isFinite(num) && num > 0 ? num : null
 }

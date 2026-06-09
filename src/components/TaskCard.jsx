@@ -8,8 +8,19 @@ function resolveAgent(task, agents = []) {
   )
 }
 
-function TaskCardContent({ task, agents = [], onEdit, onDelete, dragHandleProps }) {
+function TaskCardContent({
+  task,
+  agents = [],
+  sprints = [],
+  onEdit,
+  onDelete,
+  onAssignSprint,
+  dragHandleProps,
+}) {
   const agent = resolveAgent(task, agents)
+  const projectSprints = task.projectId
+    ? sprints.filter((s) => s.projectId === task.projectId)
+    : []
 
   return (
     <>
@@ -36,6 +47,23 @@ function TaskCardContent({ task, agents = [], onEdit, onDelete, dragHandleProps 
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs text-gray-500 truncate max-w-[40%]">{task.project || '—'}</span>
         <div className="flex items-center gap-2 shrink-0 ml-auto">
+          {task.projectId && projectSprints.length > 0 && onAssignSprint && (
+            <select
+              value={task.sprintId || ''}
+              onChange={(e) => {
+                e.stopPropagation()
+                onAssignSprint(task.id, e.target.value ? Number(e.target.value) : null)
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="px-1.5 py-0.5 rounded border border-dark-border bg-dark-card text-[10px] text-gray-400 max-w-[90px]"
+              title="Спринт"
+            >
+              <option value="">Спринт</option>
+              {projectSprints.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          )}
           {agent ? (
             <div className="flex items-center gap-1.5" title={agent.name}>
               <div
@@ -81,7 +109,7 @@ export function TaskCardOverlay({ task, agents = [] }) {
   )
 }
 
-export default function TaskCard({ task, agents = [], onEdit, onDelete }) {
+export default function TaskCard({ task, agents = [], sprints = [], onEdit, onDelete, onAssignSprint }) {
   const {
     attributes,
     listeners,
@@ -107,8 +135,10 @@ export default function TaskCard({ task, agents = [], onEdit, onDelete }) {
       <TaskCardContent
         task={task}
         agents={agents}
+        sprints={sprints}
         onEdit={onEdit}
         onDelete={onDelete}
+        onAssignSprint={onAssignSprint}
         dragHandleProps={{ ...attributes, ...listeners }}
       />
     </div>

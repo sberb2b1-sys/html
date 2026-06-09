@@ -1,6 +1,9 @@
+import os
+from datetime import date
+
 from sqlalchemy.orm import Session
 
-from models import Agent, ChatMessage, Project, Task, User
+from models import Agent, ChatMessage, GeneralMessage, Project, Sprint, Task, User
 
 DEFAULT_AGENTS = [
     {
@@ -87,6 +90,27 @@ def create_user(db: Session, email: str, hashed_password: str, name: str) -> Use
     return user
 
 
+def check_and_increment_llm_calls(db: Session, user: User) -> None:
+    limit = int(os.getenv("DAILY_LLM_LIMIT", "100"))
+    today = date.today()
+
+    if user.last_call_reset != today:
+        user.llm_calls_today = 0
+        user.last_call_reset = today
+
+    if user.llm_calls_today >= limit:
+        from fastapi import HTTPException
+
+        raise HTTPException(
+            status_code=429,
+            detail="Лимит запросов исчерпан на сегодня",
+        )
+
+    user.llm_calls_today += 1
+    db.commit()
+    db.refresh(user)
+
+
 # Projects
 def get_projects(db: Session, owner_id: int) -> list[Project]:
     return (
@@ -106,7 +130,6 @@ def get_project(db: Session, project_id: int, owner_id: int) -> Project | None:
 
 
 def create_project(db: Session, owner_id: int, data: dict) -> Project:
-    """owner_id всегда из JWT (current_user.id), не из тела запроса."""
     if not owner_id:
         raise ValueError("owner_id обязателен при создании проекта")
     safe_data = {k: v for k, v in data.items() if k != "owner_id"}
@@ -131,13 +154,63 @@ def delete_project(db: Session, project: Project) -> None:
     db.commit()
 
 
+# Sprints
+def get_sprints(db: Session, project_id: int, owner_id: int) -> list[Sprint]:
+    project = get_project(db, project_id, owner_id)
+    if not project:
+        return []
+    return (
+        db.query(Sprint)
+        .filter(Sprint.project_id == project_id)
+        .order_by(Sprint.start_date.desc())
+        .all()
+    )
+
+
+def get_sprint(db: Session, sprint_id: int, owner_id: int) -> Sprint | None:
+    return (
+        db.query(Sprint)
+        .join(Project)
+        .filter(Sprint.id == sprint_id, Project.owner_id == owner_id)
+        .first()
+    )
+
+
+def create_sprint(db: Session, owner_id: int, data: dict) -> Sprint | None:
+    project = get_project(db, data["project_id"], owner_id)
+    if not project:
+        return None
+    sprint = Sprint(**data)
+    db.add(sprint)
+    db.commit()
+    db.refresh(sprint)
+    return sprint
+
+
+def update_sprint(db: Session, sprint: Sprint, data: dict) -> Sprint:
+    for key, value in data.items():
+        if value is not None:
+            setattr(sprint, key, value)
+    db.commit()
+    db.refresh(sprint)
+    return sprint
+
+
+def delete_sprint(db: Session, sprint: Sprint) -> None:
+    db.query(Task).filter(Task.sprint_id == sprint.id).update({Task.sprint_id: None})
+    db.delete(sprint)
+    db.commit()
+
+
 # Tasks
 def get_tasks(
-    db: Session, owner_id: int, project_id: int | None = None
+    db: Session, owner_id: int, project_id: int | None = None, sprint_id: int | None = None
 ) -> list[Task]:
     query = db.query(Task).filter(Task.owner_id == owner_id)
     if project_id is not None:
         query = query.filter(Task.project_id == project_id)
+    if sprint_id is not None:
+        query = query.filter(Task.sprint_id == sprint_id)
     return query.order_by(Task.created_at.desc()).all()
 
 
@@ -150,7 +223,6 @@ def get_task(db: Session, task_id: int, owner_id: int) -> Task | None:
 
 
 def create_task(db: Session, owner_id: int, data: dict) -> Task:
-    """owner_id всегда из JWT (current_user.id), не из тела запроса."""
     if not owner_id:
         raise ValueError("owner_id обязателен при создании задачи")
     safe_data = {k: v for k, v in data.items() if k != "owner_id"}
@@ -163,7 +235,7 @@ def create_task(db: Session, owner_id: int, data: dict) -> Task:
 
 def update_task(db: Session, task: Task, data: dict) -> Task:
     for key, value in data.items():
-        if value is not None:
+        if value is not None or key == "sprint_id":
             setattr(task, key, value)
     db.commit()
     db.refresh(task)
@@ -175,6 +247,19 @@ def delete_task(db: Session, task: Task) -> None:
     db.commit()
 
 
+def assign_task_sprint(
+    db: Session, task: Task, sprint_id: int | None, owner_id: int
+) -> Task | None:
+    if sprint_id is not None:
+        sprint = get_sprint(db, sprint_id, owner_id)
+        if not sprint or sprint.project_id != task.project_id:
+            return None
+    task.sprint_id = sprint_id
+    db.commit()
+    db.refresh(task)
+    return task
+
+
 # Agents
 def get_agents(db: Session) -> list[Agent]:
     return db.query(Agent).order_by(Agent.name).all()
@@ -184,19 +269,40 @@ def get_agent(db: Session, agent_id: str) -> Agent | None:
     return db.query(Agent).filter(Agent.id == agent_id).first()
 
 
-# Chat
-def create_chat_message(
-    db: Session,
-    user_id: int,
-    agent_id: str,
-    user_message: str,
-    agent_response: str,
+def create_agent(db: Session, data: dict) -> Agent:
+    agent = Agent(**data)
+    db.add(agent)
+    db.commit()
+    db.refresh(agent)
+    return agent
+
+
+def update_agent(db: Session, agent: Agent, data: dict) -> Agent:
+    for key, value in data.items():
+        if value is not None:
+            setattr(agent, key, value)
+    db.commit()
+    db.refresh(agent)
+    return agent
+
+
+def delete_agent(db: Session, agent: Agent) -> None:
+    db.query(Task).filter(Task.assignee_agent_id == agent.id).update(
+        {Task.assignee_agent_id: None}
+    )
+    db.delete(agent)
+    db.commit()
+
+
+# Chat (role/content rows)
+def add_chat_message(
+    db: Session, user_id: int, agent_id: str, role: str, content: str
 ) -> ChatMessage:
     message = ChatMessage(
         user_id=user_id,
         agent_id=agent_id,
-        user_message=user_message,
-        agent_response=agent_response,
+        role=role,
+        content=content,
     )
     db.add(message)
     db.commit()
@@ -204,30 +310,37 @@ def create_chat_message(
     return message
 
 
-def get_chat_messages(db: Session, user_id: int, agent_id: str) -> list[ChatMessage]:
+def get_chat_history(
+    db: Session, user_id: int, agent_id: str, limit: int = 50
+) -> list[ChatMessage]:
     return (
         db.query(ChatMessage)
         .filter(ChatMessage.user_id == user_id, ChatMessage.agent_id == agent_id)
-        .order_by(ChatMessage.timestamp.asc())
-        .all()
+        .order_by(ChatMessage.created_at.desc())
+        .limit(limit)
+        .all()[::-1]
     )
 
 
 def get_chat_message(db: Session, message_id: int, user_id: int) -> ChatMessage | None:
     return (
         db.query(ChatMessage)
-        .filter(ChatMessage.id == message_id, ChatMessage.user_id == user_id)
+        .filter(
+            ChatMessage.id == message_id,
+            ChatMessage.user_id == user_id,
+            ChatMessage.role == "user",
+        )
         .first()
     )
 
 
-def update_chat_message_text(
-    db: Session, message_id: int, user_id: int, user_message: str
+def update_chat_message_content(
+    db: Session, message_id: int, user_id: int, content: str
 ) -> ChatMessage | None:
     message = get_chat_message(db, message_id, user_id)
     if not message:
         return None
-    message.user_message = user_message
+    message.content = content
     db.commit()
     db.refresh(message)
     return message
@@ -235,6 +348,73 @@ def update_chat_message_text(
 
 def delete_chat_message(db: Session, message_id: int, user_id: int) -> bool:
     message = get_chat_message(db, message_id, user_id)
+    if not message:
+        return False
+    db.delete(message)
+    db.commit()
+    return True
+
+
+# General chat
+def get_general_messages(
+    db: Session, project_id: int, owner_id: int, limit: int = 100
+) -> list[GeneralMessage]:
+    project = get_project(db, project_id, owner_id)
+    if not project:
+        return []
+    return (
+        db.query(GeneralMessage)
+        .filter(GeneralMessage.project_id == project_id)
+        .order_by(GeneralMessage.created_at.asc())
+        .limit(limit)
+        .all()
+    )
+
+
+def create_general_message(
+    db: Session,
+    project_id: int,
+    user_id: int,
+    content: str,
+    agent_id: str | None = None,
+) -> GeneralMessage | None:
+    project = get_project(db, project_id, user_id)
+    if not project:
+        return None
+    message = GeneralMessage(
+        project_id=project_id,
+        user_id=user_id,
+        content=content,
+        agent_id=agent_id,
+    )
+    db.add(message)
+    db.commit()
+    db.refresh(message)
+    return message
+
+
+def update_general_message(
+    db: Session, message_id: int, user_id: int, content: str
+) -> GeneralMessage | None:
+    message = (
+        db.query(GeneralMessage)
+        .filter(GeneralMessage.id == message_id, GeneralMessage.user_id == user_id)
+        .first()
+    )
+    if not message:
+        return None
+    message.content = content
+    db.commit()
+    db.refresh(message)
+    return message
+
+
+def delete_general_message(db: Session, message_id: int, user_id: int) -> bool:
+    message = (
+        db.query(GeneralMessage)
+        .filter(GeneralMessage.id == message_id, GeneralMessage.user_id == user_id)
+        .first()
+    )
     if not message:
         return False
     db.delete(message)

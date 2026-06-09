@@ -99,11 +99,31 @@ sudo systemctl restart itteam-api
 # Логи API
 sudo journalctl -u itteam-api -f
 
-# Обновить код после push в GitHub
-cd /opt/itteam-api/repo && sudo git pull
-cd backend && sudo -u www-data venv/bin/pip install -r requirements.txt
+## Обновить код после push в GitHub
+
+```bash
+cd /opt/itteam-api/repo
+
+# Сбросить локальные артефакты Python (иначе git pull может упасть)
+git fetch origin
+git reset --hard origin/main
+
+# DeepSeek (только если ещё не добавлено в backend/.env)
+grep -q DEEPSEEK_API_KEY backend/.env || cat >> backend/.env <<'EOF'
+DEEPSEEK_API_KEY=your-key-here
+DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
+DAILY_LLM_LIMIT=100
+EOF
+
+# pip только через venv (не системный pip!)
+cd backend
+./venv/bin/pip install -r requirements.txt
+
 sudo systemctl restart itteam-api
+sudo systemctl status itteam-api
 ```
+
+> **Не используйте** `pip install` без venv — на Ubuntu 26.04 будет ошибка `externally-managed-environment`.
 
 ---
 

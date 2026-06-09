@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import shieldIcon from '../assets/shieldcheck.png'
+import logoUrl from '../assets/logo.svg'
 import PasswordField from '../components/PasswordField'
 import { isValidEmail, isValidPassword } from '../utils/auth'
 import { useStore } from '../store/useStore'
@@ -13,7 +14,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  const handleRegister = async () => {
+  const handleSubmit = async () => {
     setError('')
 
     if (!name.trim() || !email.trim() || !password) {
@@ -48,14 +49,7 @@ export default function RegisterPage() {
           }}
         />
         <div className="relative flex items-center gap-2.5">
-          <div
-            className="w-9 h-9 rounded-[10px] flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%)' }}
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M9 2L15 6V12L9 16L3 12V6L9 2Z" stroke="white" strokeWidth="1.5" />
-            </svg>
-          </div>
+          <img src={logoUrl} alt="IT Team" className="w-9 h-9" />
           <span className="text-base font-inter-bold text-white">IT Team</span>
         </div>
 
@@ -90,7 +84,7 @@ export default function RegisterPage() {
           className="w-full max-w-[400px] flex flex-col gap-6"
           onSubmit={(e) => {
             e.preventDefault()
-            handleRegister()
+            handleSubmit()
           }}
         >
           <div>

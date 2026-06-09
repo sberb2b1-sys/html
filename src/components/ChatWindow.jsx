@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ChatMessage from './ChatMessage'
 import { useStore } from '../store/useStore'
 import { maskPersonalData } from '../utils/mask'
 
@@ -25,8 +26,15 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
 
   const handleSend = () => {
     if (!input.trim() || !selectedAgentId || isAgentTyping) return
-    onSend(input)
+    onSend(input.trim())
     setInput('')
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
   }
 
   const startEdit = (msg) => {
@@ -103,77 +111,24 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
         )}
 
         {messages.map((msg) => (
-          <div
+          <ChatMessage
             key={msg.id}
-            className={`group flex gap-3 ${msg.from === 'user' ? 'flex-row-reverse' : ''}`}
+            msg={msg}
+            agent={agent}
+            displayText={formatMessage(msg.text)}
+            editingId={editingId}
+            editText={editText}
+            onEditTextChange={setEditText}
+            onSaveEdit={saveEdit}
+            onCancelEdit={cancelEdit}
+            savingEdit={savingEdit}
+            hoveredId={hoveredId}
             onMouseEnter={() => setHoveredId(msg.id)}
             onMouseLeave={() => setHoveredId(null)}
-          >
-            {msg.from === 'agent' && (
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-inter-semibold text-white shrink-0 mt-1"
-                style={{ backgroundColor: agent.avatarColor }}
-              >
-                {agent.name.charAt(0)}
-              </div>
-            )}
-            <div className={`relative max-w-[70%] ${msg.from === 'user' ? 'items-end' : ''}`}>
-              {editingId === msg.id && msg.from === 'user' ? (
-                <div className="flex flex-col gap-2">
-                  <textarea
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    rows={2}
-                    className="px-3 py-2 rounded-lg border border-dark-border bg-dark-card text-sm text-white outline-none focus:border-accent-purple/50 resize-none w-full min-w-[200px]"
-                  />
-                  <div className="flex gap-2 justify-end">
-                    <button type="button" onClick={saveEdit} disabled={savingEdit} className="text-xs text-accent-violet hover:underline disabled:opacity-50">
-                      {savingEdit ? 'Сохранение...' : 'Сохранить'}
-                    </button>
-                    <button type="button" onClick={cancelEdit} disabled={savingEdit} className="text-xs text-gray-500 hover:underline disabled:opacity-50">
-                      Отменить
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div
-                    className={`px-4 py-3 rounded-xl text-sm leading-relaxed ${
-                      msg.from === 'user'
-                        ? 'bg-accent-purple text-white rounded-tr-sm'
-                        : 'bg-dark-card border border-dark-border text-gray-200 rounded-tl-sm'
-                    }`}
-                  >
-                    {formatMessage(msg.text)}
-                  </div>
-                  <p className={`text-xs text-gray-500 mt-1 ${msg.from === 'user' ? 'text-right' : ''}`}>
-                    {msg.time}
-                  </p>
-                </>
-              )}
-              {msg.from === 'user' && hoveredId === msg.id && editingId !== msg.id && (
-                <div className="absolute -left-14 top-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    type="button"
-                    onClick={() => startEdit(msg)}
-                    className="text-sm hover:scale-110 transition-transform"
-                    title="Редактировать"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(msg)}
-                    disabled={deletingId === msg.id}
-                    className="text-sm hover:scale-110 transition-transform disabled:opacity-40 disabled:hover:scale-100"
-                    title="Удалить"
-                  >
-                    {deletingId === msg.id ? '…' : '🗑️'}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+            onStartEdit={startEdit}
+            onDelete={handleDelete}
+            deletingId={deletingId}
+          />
         ))}
 
         {isAgentTyping && (
@@ -195,15 +150,15 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
       </div>
 
       <div className="px-6 py-4 border-t border-dark-border">
-        <div className="flex items-center gap-3">
-          <input
-            type="text"
+        <div className="flex items-end gap-3">
+          <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
-            placeholder="Напишите сообщение агенту..."
+            onKeyDown={handleKeyDown}
+            rows={3}
+            placeholder="Напишите сообщение агенту... (Enter — отправить, Shift+Enter — новая строка)"
             disabled={isAgentTyping}
-            className="flex-1 px-4 py-3 rounded-xl border border-dark-border bg-dark-card text-sm text-white placeholder:text-gray-500 outline-none focus:border-accent-purple/50 disabled:opacity-50"
+            className="chat-message-input flex-1 px-4 py-3 rounded-xl border border-dark-border bg-dark-card text-sm text-white placeholder:text-gray-500 outline-none focus:border-accent-purple/50 disabled:opacity-50 resize-y min-h-[48px] max-h-[200px]"
           />
           <button
             type="button"

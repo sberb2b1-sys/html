@@ -81,6 +81,7 @@ export function mapTaskFromApi(task, agents = [], projects = []) {
     project: project?.name || '',
     assigneeAgentId: task.assignee_agent_id ?? null,
     assignee: agent?.name || '',
+    createdAt: task.created_at ?? null,
   }
 }
 

@@ -4,6 +4,7 @@ export default function PasswordField({
   id,
   value,
   onChange,
+  onKeyDown,
   placeholder = '••••••••',
   className = '',
 }) {
@@ -20,6 +21,7 @@ export default function PasswordField({
         type={visible ? 'text' : 'password'}
         value={value}
         onChange={onChange}
+        onKeyDown={onKeyDown}
         placeholder={placeholder}
         className="flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 outline-none"
       />

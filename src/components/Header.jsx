@@ -1,9 +1,9 @@
 export default function Header({ title, subtitle, actionLabel, onAction }) {
   return (
-    <div className="flex items-center justify-between px-8 py-5 border-b border-dark-border bg-dark">
-      <div>
-        <h1 className="text-xl font-inter-bold text-white">{title}</h1>
-        {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+    <div className="flex items-center justify-between pl-14 pr-4 md:px-8 py-4 md:py-5 border-b border-dark-border bg-dark gap-3">
+      <div className="min-w-0">
+        <h1 className="text-lg md:text-xl font-inter-bold text-white truncate">{title}</h1>
+        {subtitle && <p className="text-xs md:text-sm text-gray-500 mt-1 truncate">{subtitle}</p>}
       </div>
       {actionLabel && (
         <button type="button" className="btn-primary" onClick={onAction}>

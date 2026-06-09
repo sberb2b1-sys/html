@@ -112,8 +112,8 @@ export default function DashboardPage() {
         subtitle={`Мультиагентная IT-команда • ${projects.length > 0 ? `${projects.length} проектов` : 'Нет проектов'}`}
       />
 
-      <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-6">
-        <div className="grid grid-cols-4 gap-4">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {stats.map((stat) => (
             <div key={stat.label} className="stat-card">
               <p className="text-sm text-gray-500">{stat.label}</p>
@@ -125,8 +125,8 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-3 gap-6 flex-1">
-          <div className="col-span-2 card-border p-5 flex flex-col gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 flex-1">
+          <div className="lg:col-span-2 card-border p-4 md:p-5 flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-base font-inter-semibold text-white">Агенты команды</p>

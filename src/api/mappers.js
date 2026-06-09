@@ -124,7 +124,7 @@ export function mapTaskToApi(data, agents = []) {
     priority: data.priority || 'Medium',
     project_id: data.projectId ?? data.project_id ?? null,
     sprint_id: data.sprintId ?? data.sprint_id ?? null,
-    assignee_agent_id: data.assigneeAgentId ?? agent?.id ?? null,
+    assignee_agent_id: data.assigneeAgentId || agent?.id || null,
   }
 }
 

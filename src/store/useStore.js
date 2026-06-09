@@ -16,6 +16,7 @@ import {
   mapSprintToApi,
   parseChatMessageId,
 } from '../api/mappers'
+import { notifyApiError, notifyApiErrorPlain } from '../utils/apiError'
 import { safeLog } from '../utils/mask'
 import { extractTaskFromMessage } from '../utils/extractTaskFromMessage'
 import { agents as fallbackAgents } from '../mocks/agents'
@@ -360,7 +361,7 @@ export const useStore = create((set, get) => ({
         ),
       })
     } catch (error) {
-      toast.error(`Ошибка: ${error.message || 'не удалось загрузить проекты'}`)
+      notifyApiError(error, 'не удалось загрузить проекты')
     }
   },
 
@@ -370,8 +371,10 @@ export const useStore = create((set, get) => ({
       await get().loadProjects()
       await get().loadTasks()
       toast.success('Проект создан')
+      return true
     } catch (error) {
-      toast.error(`Ошибка: ${error.message || 'не удалось создать проект'}`)
+      notifyApiError(error, 'не удалось создать проект')
+      return false
     }
   },
 
@@ -422,8 +425,10 @@ export const useStore = create((set, get) => ({
       await get().loadTasks()
       await get().loadProjects()
       toast.success('Задача создана')
+      return true
     } catch (error) {
-      toast.error(`Ошибка: ${error.message || 'не удалось создать задачу'}`)
+      notifyApiError(error, 'не удалось создать задачу')
+      return false
     }
   },
 
@@ -433,8 +438,10 @@ export const useStore = create((set, get) => ({
       await get().loadTasks()
       await get().loadProjects()
       toast.success('Задача добавлена в бэклог')
+      return true
     } catch (error) {
-      toast.error(`Ошибка: ${error.message || 'не удалось создать задачу'}`)
+      notifyApiError(error, 'не удалось создать задачу')
+      return false
     }
   },
 
@@ -542,11 +549,13 @@ export const useStore = create((set, get) => ({
           [agentId]: (state.chatMessages[agentId] || []).filter((m) => m.id !== userMessage.id),
         },
       }))
-      const msg =
-        error.status === 429
-          ? 'Лимит запросов исчерпан на сегодня'
-          : error.message || 'Не удалось отправить сообщение'
-      toast.error(msg)
+      if (!error.handledGlobally) {
+        const msg =
+          error.status === 429
+            ? 'Лимит запросов исчерпан на сегодня'
+            : error.message || 'Не удалось отправить сообщение'
+        toast.error(msg)
+      }
     }
   },
 

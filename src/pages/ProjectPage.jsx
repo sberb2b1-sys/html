@@ -38,16 +38,29 @@ export default function ProjectPage() {
 
   const [activeTab, setActiveTab] = useState('tasks')
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    loadProjects()
-    loadTasks()
-    loadAgents()
-  }, [loadProjects, loadTasks, loadAgents])
+    let cancelled = false
 
-  useEffect(() => {
-    if (id) loadSprints(id)
-  }, [id, loadSprints])
+    async function loadProjectData() {
+      setIsLoading(true)
+      await Promise.all([loadProjects(), loadAgents()])
+
+      if (!cancelled && !Number.isNaN(id) && id > 0) {
+        await Promise.all([loadTasks(id), loadSprints(id)])
+      }
+
+      if (!cancelled) {
+        setIsLoading(false)
+      }
+    }
+
+    loadProjectData()
+    return () => {
+      cancelled = true
+    }
+  }, [projectId, id, loadProjects, loadTasks, loadAgents, loadSprints])
 
   const project = projects.find((p) => p.id === id)
 
@@ -76,6 +89,25 @@ export default function ProjectPage() {
     await deleteProject(id)
     setDeleteOpen(false)
     navigate('/projects')
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-8">
+        <p className="text-sm text-gray-500">Загрузка проекта...</p>
+      </div>
+    )
+  }
+
+  if (Number.isNaN(id) || id <= 0) {
+    return (
+      <div className="flex flex-col flex-1 items-center justify-center gap-4 p-8">
+        <p className="text-gray-400">Некорректный адрес проекта</p>
+        <Link to="/projects" className="text-accent-violet hover:underline text-sm">
+          ← К списку проектов
+        </Link>
+      </div>
+    )
   }
 
   if (!project) {

@@ -147,8 +147,10 @@ export default function BacklogPage() {
   }
 
   const handleCreateTask = async (data) => {
-    await createTask(data)
-    setCreateOpen(false)
+    const ok = await createTask(data)
+    if (ok) {
+      setCreateOpen(false)
+    }
   }
 
   const handleDeleteConfirm = async () => {

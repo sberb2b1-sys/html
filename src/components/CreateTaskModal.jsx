@@ -27,19 +27,25 @@ export default function CreateTaskModal({
     }
   }, [open, agents, initialValues])
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim()) {
       toast.error('Введите название задачи')
       return
     }
-    onSave({
+    if (!assigneeAgentId) {
+      toast.error('Выберите агента')
+      return
+    }
+    const ok = await onSave({
       title: title.trim(),
       description: description.trim(),
       priority,
-      assigneeAgentId: assigneeAgentId || null,
+      assigneeAgentId,
       status: 'todo',
     })
-    onClose()
+    if (ok !== false) {
+      onClose()
+    }
   }
 
   if (!open) return null
@@ -89,17 +95,23 @@ export default function CreateTaskModal({
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="new-task-agent" className="text-sm text-gray-400">Агент</label>
+          <label htmlFor="new-task-agent" className="text-sm text-gray-400">
+            Агент <span className="text-red-400">*</span>
+          </label>
           <select
             id="new-task-agent"
             value={assigneeAgentId}
             onChange={(e) => setAssigneeAgentId(e.target.value)}
             className="px-4 py-3 rounded-xl border border-dark-border bg-dark-card text-sm text-white outline-none focus:border-accent-purple/50"
+            required
           >
-            <option value="">Не назначен</option>
-            {agents.map((a) => (
-              <option key={a.id} value={a.id}>{a.name}</option>
-            ))}
+            {agents.length === 0 ? (
+              <option value="">Нет доступных агентов</option>
+            ) : (
+              agents.map((a) => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))
+            )}
           </select>
         </div>
 

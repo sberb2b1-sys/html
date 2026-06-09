@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import shieldIcon from '../assets/shieldcheck.png'
 import logoUrl from '../assets/logo.svg'
 import PasswordField from '../components/PasswordField'
@@ -12,6 +13,7 @@ export default function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [consent, setConsent] = useState(false)
   const [error, setError] = useState('')
 
   const handleSubmit = async () => {
@@ -27,6 +29,10 @@ export default function RegisterPage() {
     }
     if (!isValidPassword(password)) {
       setError('Пароль должен содержать минимум 3 символа')
+      return
+    }
+    if (!consent) {
+      toast.error('Необходимо согласие на обработку персональных данных')
       return
     }
 
@@ -142,6 +148,28 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Минимум 3 символа"
             />
+          </div>
+
+          <div className="mb-1">
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                className="mt-1 shrink-0"
+              />
+              <span className="text-sm text-slate-300">
+                Я соглашаюсь с{' '}
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-purple-400 hover:underline"
+                >
+                  Политикой конфиденциальности
+                </a>
+              </span>
+            </label>
           </div>
 
           <button

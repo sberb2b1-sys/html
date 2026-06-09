@@ -16,6 +16,7 @@ import StatsPage from './pages/StatsPage'
 import BacklogPage from './pages/BacklogPage'
 import AdminAgentsPage from './pages/AdminAgentsPage'
 import DemoPage from './pages/DemoPage'
+import PrivacyPage from './pages/PrivacyPage'
 import { useStore } from './store/useStore'
 
 function AuthBootstrap({ children }) {
@@ -63,6 +64,7 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<DashboardPage />} />

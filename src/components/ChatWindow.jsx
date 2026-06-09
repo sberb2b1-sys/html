@@ -92,9 +92,11 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
   }
 
   const handleCreateTask = async (data) => {
-    await createTaskFromAgent(data)
-    setTaskModalOpen(false)
-    setTaskInitialValues(null)
+    const ok = await createTaskFromAgent(data)
+    if (ok) {
+      setTaskModalOpen(false)
+      setTaskInitialValues(null)
+    }
   }
 
   if (!selectedAgentId || !agent) {

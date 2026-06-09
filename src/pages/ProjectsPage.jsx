@@ -39,8 +39,11 @@ export default function ProjectsPage() {
   }
 
   const handleCreateProject = async (data) => {
-    await createProject({ name: data.name, description: data.description })
-    setModalOpen(false)
+    const ok = await createProject({ name: data.name, description: data.description })
+    if (ok) {
+      await loadProjects()
+      setModalOpen(false)
+    }
   }
 
   const handleSaveEdit = async (data) => {

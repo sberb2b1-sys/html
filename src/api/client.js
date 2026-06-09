@@ -1,3 +1,5 @@
+import toast from 'react-hot-toast'
+
 const DEV_BASE_URL = 'http://localhost:8000/api'
 
 function normalizeBaseUrl(url) {
@@ -43,16 +45,17 @@ async function apiRequest(endpoint, options = {}) {
       headers,
     })
   } catch {
-    const hint = import.meta.env.DEV
-      ? 'Запустите бэкенд: cd backend && uvicorn main:app --reload --port 8000'
-      : 'API-сервер недоступен. Проверьте, что бэкенд развёрнут (api.itteam.tech).'
-    throw new Error(`Не удалось подключиться к серверу. ${hint}`)
+    toast.error('Нет соединения с сервером')
+    const error = new Error('Нет соединения с сервером')
+    error.handledGlobally = true
+    throw error
   }
 
   if (response.status === 401) {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
-    if (!window.location.pathname.startsWith('/login') && window.location.pathname !== '/') {
+    const publicPaths = ['/', '/login', '/register', '/privacy']
+    if (!publicPaths.includes(window.location.pathname)) {
       window.location.href = '/login'
     }
     throw new Error('Unauthorized')
@@ -76,6 +79,15 @@ async function apiRequest(endpoint, options = {}) {
     const error = new Error(parseErrorMessage(data))
     error.status = response.status
     error.data = data
+
+    if (response.status === 500) {
+      toast.error('Ошибка сервера. Попробуйте позже')
+      error.handledGlobally = true
+    } else if (response.status === 429) {
+      toast.error('Лимит запросов исчерпан на сегодня')
+      error.handledGlobally = true
+    }
+
     throw error
   }
 

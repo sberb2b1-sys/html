@@ -4,7 +4,7 @@ from datetime import date
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr, Field
@@ -83,6 +83,10 @@ class TaskCreate(BaseModel):
     project_id: Optional[int] = None
     sprint_id: Optional[int] = None
     assignee_agent_id: Optional[str] = None
+
+
+class AgentTaskCreate(TaskCreate):
+    user_id: Optional[int] = None
 
 
 class TaskUpdate(BaseModel):
@@ -231,6 +235,7 @@ async def lifespan(app: FastAPI):
     db = next(get_db())
     try:
         crud.seed_agents(db)
+        crud.ensure_agent_task_prompts(db)
     finally:
         db.close()
     yield
@@ -486,6 +491,52 @@ def create_task(
     if payload.assignee_agent_id and not crud.get_agent(db, payload.assignee_agent_id):
         raise HTTPException(status_code=404, detail="Агент не найден")
     task = crud.create_task(db, current_user.id, payload.model_dump())
+    return task_to_response(task)
+
+
+async def resolve_agent_task_owner_id(
+    payload: AgentTaskCreate,
+    db: Session = Depends(get_db),
+    token: Optional[str] = Depends(auth.oauth2_scheme_optional),
+    x_agent_api_key: Optional[str] = Header(None, alias="X-Agent-API-Key"),
+) -> int:
+    if x_agent_api_key:
+        auth.verify_agent_api_key(x_agent_api_key)
+        if payload.user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="user_id обязателен при вызове с API-ключом агента",
+            )
+        user = crud.get_user(db, payload.user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+        return payload.user_id
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Требуется авторизация",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    user = await auth.get_user_from_token(token, db)
+    return user.id
+
+
+@app.post(
+    "/api/agent/create-task",
+    response_model=TaskResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def agent_create_task(
+    payload: AgentTaskCreate,
+    db: Session = Depends(get_db),
+    owner_id: int = Depends(resolve_agent_task_owner_id),
+):
+    ensure_project_belongs_to_user(db, payload.project_id, owner_id)
+    if payload.assignee_agent_id and not crud.get_agent(db, payload.assignee_agent_id):
+        raise HTTPException(status_code=404, detail="Агент не найден")
+    data = payload.model_dump(exclude={"user_id"})
+    task = crud.create_task(db, owner_id, data)
     return task_to_response(task)
 
 

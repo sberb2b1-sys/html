@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import ChatMessage from './ChatMessage'
+import CreateTaskModal from './CreateTaskModal'
 import { useStore } from '../store/useStore'
 import { maskPersonalData } from '../utils/mask'
+import {
+  extractTaskFromMessage,
+  resolveAgentIdFromHint,
+} from '../utils/extractTaskFromMessage'
 
 export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdProp }) {
   const [input, setInput] = useState('')
@@ -10,8 +15,11 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
   const [hoveredId, setHoveredId] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
   const [savingEdit, setSavingEdit] = useState(false)
+  const [taskModalOpen, setTaskModalOpen] = useState(false)
+  const [taskInitialValues, setTaskInitialValues] = useState(null)
 
   const agents = useStore((s) => s.agents)
+  const createTaskFromAgent = useStore((s) => s.createTaskFromAgent)
   const chatMessages = useStore((s) => s.chatMessages)
   const isAgentTyping = useStore((s) => s.isAgentTyping)
   const maskPdn = useStore((s) => s.maskPdn)
@@ -71,6 +79,24 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
     setEditText('')
   }
 
+  const openTaskModalFromMessage = (msg) => {
+    const extracted = extractTaskFromMessage(msg.text)
+    const assigneeFromHint = resolveAgentIdFromHint(extracted?.assigneeHint, agents)
+    setTaskInitialValues({
+      title: extracted?.title || msg.text.slice(0, 120).trim() || 'Новая задача',
+      description: extracted?.description || msg.text,
+      assigneeAgentId: assigneeFromHint || selectedAgentId || '',
+      priority: 'Medium',
+    })
+    setTaskModalOpen(true)
+  }
+
+  const handleCreateTask = async (data) => {
+    await createTaskFromAgent(data)
+    setTaskModalOpen(false)
+    setTaskInitialValues(null)
+  }
+
   if (!selectedAgentId || !agent) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center min-w-0 bg-dark p-8">
@@ -128,6 +154,7 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
             onStartEdit={startEdit}
             onDelete={handleDelete}
             deletingId={deletingId}
+            onCreateTask={openTaskModalFromMessage}
           />
         ))}
 
@@ -171,6 +198,17 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
           </button>
         </div>
       </div>
+
+      <CreateTaskModal
+        open={taskModalOpen}
+        agents={agents}
+        initialValues={taskInitialValues}
+        onClose={() => {
+          setTaskModalOpen(false)
+          setTaskInitialValues(null)
+        }}
+        onSave={handleCreateTask}
+      />
     </div>
   )
 }

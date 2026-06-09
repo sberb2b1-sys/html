@@ -169,6 +169,11 @@ export const agents = {
   update: (id, data) =>
     apiRequest(`/agents/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id) => apiRequest(`/agents/${id}`, { method: 'DELETE' }),
+  createTask: (data) =>
+    apiRequest('/agent/create-task', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 }
 
 export const chat = {

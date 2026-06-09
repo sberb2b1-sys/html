@@ -17,6 +17,7 @@ import {
   parseChatMessageId,
 } from '../api/mappers'
 import { safeLog } from '../utils/mask'
+import { extractTaskFromMessage } from '../utils/extractTaskFromMessage'
 import { agents as fallbackAgents } from '../mocks/agents'
 
 const clone = (data) => JSON.parse(JSON.stringify(data))
@@ -426,6 +427,17 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  createTaskFromAgent: async (data) => {
+    try {
+      await agents.createTask(mapTaskToApi(data, get().agents))
+      await get().loadTasks()
+      await get().loadProjects()
+      toast.success('Задача добавлена в бэклог')
+    } catch (error) {
+      toast.error(`Ошибка: ${error.message || 'не удалось создать задачу'}`)
+    }
+  },
+
   updateTask: async (id, data) => {
     try {
       await tasks.update(id, mapTaskToApi(data, get().agents))
@@ -514,6 +526,14 @@ export const useStore = create((set, get) => ({
           isAgentTyping: false,
         }
       })
+
+      const suggested = extractTaskFromMessage(agentMessage.text)
+      if (suggested?.title) {
+        toast(
+          `Агент предлагает задачу: «${suggested.title}». Нажмите «Создать задачу» под сообщением.`,
+          { duration: 6000, icon: '📋' }
+        )
+      }
     } catch (error) {
       set((state) => ({
         isAgentTyping: false,

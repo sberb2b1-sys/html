@@ -4,7 +4,13 @@ import Modal from './Modal'
 
 const PRIORITIES = ['High', 'Medium', 'Low']
 
-export default function CreateTaskModal({ open, agents = [], onClose, onSave }) {
+export default function CreateTaskModal({
+  open,
+  agents = [],
+  initialValues = null,
+  onClose,
+  onSave,
+}) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState('Medium')
@@ -12,12 +18,14 @@ export default function CreateTaskModal({ open, agents = [], onClose, onSave }) 
 
   useEffect(() => {
     if (open) {
-      setTitle('')
-      setDescription('')
-      setPriority('Medium')
-      setAssigneeAgentId(agents[0]?.id || '')
+      setTitle(initialValues?.title || '')
+      setDescription(initialValues?.description || '')
+      setPriority(initialValues?.priority || 'Medium')
+      setAssigneeAgentId(
+        initialValues?.assigneeAgentId || agents[0]?.id || ''
+      )
     }
-  }, [open, agents])
+  }, [open, agents, initialValues])
 
   const handleSave = () => {
     if (!title.trim()) {

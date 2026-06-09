@@ -5,61 +5,68 @@ from sqlalchemy.orm import Session
 
 from models import Agent, ChatMessage, GeneralMessage, Project, Sprint, Task, User
 
+TASK_CREATION_PROMPT = (
+    " Если пользователь просит что-то сделать, что требует работы другого агента — "
+    "предложи создать задачу и укажи название и описание. "
+    'Например: «Создаю задачу для архитектора: „Спроектировать авторизацию через Google"».'
+)
+
 DEFAULT_AGENTS = [
     {
         "id": "ba",
         "name": "Бизнес Аналитик",
         "role": "Business Analyst",
-        "system_prompt": "Ты — бизнес-аналитик IT-команды. Помогай с требованиями и user stories.",
+        "system_prompt": "Ты — бизнес-аналитик IT-команды. Помогай с требованиями и user stories."
+        + TASK_CREATION_PROMPT,
         "is_online": True,
     },
     {
         "id": "sa",
         "name": "Системный Аналитик",
         "role": "System Analyst",
-        "system_prompt": "Ты системный аналитик IT-команды.",
+        "system_prompt": "Ты системный аналитик IT-команды." + TASK_CREATION_PROMPT,
         "is_online": True,
     },
     {
         "id": "arch",
         "name": "Архитектор",
         "role": "Architect",
-        "system_prompt": "Ты архитектор программных систем.",
+        "system_prompt": "Ты архитектор программных систем." + TASK_CREATION_PROMPT,
         "is_online": True,
     },
     {
         "id": "fe",
         "name": "Фронтенд Разработчик",
         "role": "Frontend Developer",
-        "system_prompt": "Ты фронтенд-разработчик.",
+        "system_prompt": "Ты фронтенд-разработчик." + TASK_CREATION_PROMPT,
         "is_online": True,
     },
     {
         "id": "be",
         "name": "Бэкенд Разработчик",
         "role": "Backend Developer",
-        "system_prompt": "Ты бэкенд-разработчик.",
+        "system_prompt": "Ты бэкенд-разработчик." + TASK_CREATION_PROMPT,
         "is_online": True,
     },
     {
         "id": "lead",
         "name": "Лид Разработки",
         "role": "Tech Lead",
-        "system_prompt": "Ты технический лид команды.",
+        "system_prompt": "Ты технический лид команды." + TASK_CREATION_PROMPT,
         "is_online": True,
     },
     {
         "id": "design",
         "name": "Дизайнер",
         "role": "UI/UX Designer",
-        "system_prompt": "Ты UI/UX дизайнер.",
+        "system_prompt": "Ты UI/UX дизайнер." + TASK_CREATION_PROMPT,
         "is_online": True,
     },
     {
         "id": "sm",
         "name": "Скрам Мастер",
         "role": "Scrum Master",
-        "system_prompt": "Ты скрам-мастер команды.",
+        "system_prompt": "Ты скрам-мастер команды." + TASK_CREATION_PROMPT,
         "is_online": True,
     },
 ]
@@ -71,6 +78,19 @@ def seed_agents(db: Session) -> None:
     for agent_data in DEFAULT_AGENTS:
         db.add(Agent(**agent_data))
     db.commit()
+
+
+def ensure_agent_task_prompts(db: Session) -> None:
+    marker = "предложи создать задачу"
+    agents = db.query(Agent).all()
+    changed = False
+    for agent in agents:
+        prompt = agent.system_prompt or ""
+        if marker not in prompt:
+            agent.system_prompt = prompt.rstrip() + TASK_CREATION_PROMPT
+            changed = True
+    if changed:
+        db.commit()
 
 
 # Users

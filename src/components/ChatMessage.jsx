@@ -17,6 +17,7 @@ export default function ChatMessage({
   onStartEdit,
   onDelete,
   deletingId,
+  onCreateTask,
 }) {
   const isUser = msg.from === 'user'
   const isEditing = editingId === msg.id && isUser
@@ -84,6 +85,15 @@ export default function ChatMessage({
             <p className={`text-xs text-gray-500 mt-1 ${isUser ? 'text-right' : ''}`}>
               {msg.time}
             </p>
+            {!isUser && onCreateTask && (
+              <button
+                type="button"
+                onClick={() => onCreateTask(msg)}
+                className="mt-2 text-xs text-accent-violet hover:text-accent-purple transition-colors flex items-center gap-1"
+              >
+                📋 Создать задачу
+              </button>
+            )}
           </>
         )}
 

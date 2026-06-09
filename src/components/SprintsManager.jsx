@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import Modal from './Modal'
 
@@ -58,20 +59,30 @@ export default function SprintsManager({
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {projectSprints.map((sprint) => (
-            <button
+            <div
               key={sprint.id}
-              type="button"
-              onClick={() => setSelectedSprintId(sprint.id)}
               className={`card-border p-4 text-left transition-colors ${
                 selectedSprintId === sprint.id ? 'border-accent-purple/50 bg-[rgba(124,58,237,0.08)]' : ''
               }`}
             >
-              <p className="text-sm font-inter-medium text-white">{sprint.name}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                {sprint.startDate} — {sprint.endDate}
-              </p>
-              <span className="status-badge mt-2 inline-block">{sprint.status}</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => setSelectedSprintId(sprint.id)}
+                className="w-full text-left"
+              >
+                <p className="text-sm font-inter-medium text-white">{sprint.name}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {sprint.startDate} — {sprint.endDate}
+                </p>
+                <span className="status-badge mt-2 inline-block">{sprint.status}</span>
+              </button>
+              <Link
+                to={`/projects/${projectId}/sprints/${sprint.id}`}
+                className="text-xs text-accent-violet hover:underline mt-3 inline-block"
+              >
+                Открыть страницу спринта →
+              </Link>
+            </div>
           ))}
         </div>
       )}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import Modal from './Modal'
 
@@ -7,6 +7,8 @@ const PRIORITIES = ['High', 'Medium', 'Low']
 export default function CreateTaskModal({
   open,
   agents = [],
+  projects = [],
+  sprints = [],
   initialValues = null,
   onClose,
   onSave,
@@ -15,6 +17,13 @@ export default function CreateTaskModal({
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState('Medium')
   const [assigneeAgentId, setAssigneeAgentId] = useState('')
+  const [projectId, setProjectId] = useState('')
+  const [sprintId, setSprintId] = useState('')
+
+  const projectSprints = useMemo(() => {
+    if (!projectId) return []
+    return sprints.filter((s) => s.projectId === Number(projectId))
+  }, [sprints, projectId])
 
   useEffect(() => {
     if (open) {
@@ -24,8 +33,18 @@ export default function CreateTaskModal({
       setAssigneeAgentId(
         initialValues?.assigneeAgentId || agents[0]?.id || ''
       )
+      setProjectId(
+        initialValues?.projectId ? String(initialValues.projectId) : projects[0]?.id ? String(projects[0].id) : ''
+      )
+      setSprintId(initialValues?.sprintId ? String(initialValues.sprintId) : '')
     }
-  }, [open, agents, initialValues])
+  }, [open, agents, projects, initialValues])
+
+  useEffect(() => {
+    if (sprintId && !projectSprints.some((s) => s.id === Number(sprintId))) {
+      setSprintId('')
+    }
+  }, [projectId, projectSprints, sprintId])
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -41,6 +60,8 @@ export default function CreateTaskModal({
       description: description.trim(),
       priority,
       assigneeAgentId,
+      projectId: projectId ? Number(projectId) : null,
+      sprintId: sprintId ? Number(sprintId) : null,
       status: 'todo',
     })
     if (ok !== false) {
@@ -78,6 +99,42 @@ export default function CreateTaskModal({
             placeholder="Дополнительные детали..."
             className="px-4 py-3 rounded-xl border border-dark-border bg-dark-card text-sm text-white placeholder:text-gray-500 outline-none focus:border-accent-purple/50 resize-none"
           />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="new-task-project" className="text-sm text-gray-400">Проект</label>
+          <select
+            id="new-task-project"
+            value={projectId}
+            onChange={(e) => {
+              setProjectId(e.target.value)
+              setSprintId('')
+            }}
+            className="px-4 py-3 rounded-xl border border-dark-border bg-dark-card text-sm text-white outline-none focus:border-accent-purple/50"
+          >
+            <option value="">Без проекта</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="new-task-sprint" className="text-sm text-gray-400">Спринт</label>
+          <select
+            id="new-task-sprint"
+            value={sprintId}
+            onChange={(e) => setSprintId(e.target.value)}
+            disabled={!projectId}
+            className="px-4 py-3 rounded-xl border border-dark-border bg-dark-card text-sm text-white outline-none focus:border-accent-purple/50 disabled:opacity-50"
+          >
+            <option value="">Без спринта</option>
+            {projectSprints.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name} ({s.startDate} — {s.endDate})
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex flex-col gap-2">

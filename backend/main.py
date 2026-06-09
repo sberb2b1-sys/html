@@ -14,6 +14,7 @@ import auth
 import crud
 from database import Base, engine, get_db, run_legacy_migrations
 from migrations.add_owner_id import run_migration as run_owner_id_migration
+from migrations.add_sprints import run_add_sprints_migration
 from migrations.sprint2 import run_sprint2_migrations
 from models import Agent, ChatMessage, GeneralMessage, Project, Sprint, Task, User
 from services.llm import (
@@ -125,6 +126,7 @@ class TaskResponse(BaseModel):
 class SprintCreate(BaseModel):
     project_id: int
     name: str
+    description: str = ""
     start_date: date
     end_date: date
     status: str = "planning"
@@ -132,6 +134,7 @@ class SprintCreate(BaseModel):
 
 class SprintUpdate(BaseModel):
     name: Optional[str] = None
+    description: Optional[str] = None
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     status: Optional[str] = None
@@ -141,9 +144,11 @@ class SprintResponse(BaseModel):
     id: int
     project_id: int
     name: str
+    description: str = ""
     start_date: date
     end_date: date
     status: str
+    created_at: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -232,6 +237,7 @@ async def lifespan(app: FastAPI):
     run_owner_id_migration(engine)
     run_legacy_migrations()
     run_sprint2_migrations()
+    run_add_sprints_migration()
     db = next(get_db())
     try:
         crud.seed_agents(db)
@@ -301,14 +307,31 @@ def task_to_response(task: Task) -> TaskResponse:
 
 
 def sprint_to_response(sprint: Sprint) -> SprintResponse:
+    created = sprint.created_at.isoformat() if sprint.created_at else None
     return SprintResponse(
         id=sprint.id,
         project_id=sprint.project_id,
         name=sprint.name,
+        description=sprint.description or "",
         start_date=sprint.start_date,
         end_date=sprint.end_date,
         status=sprint.status,
+        created_at=created,
     )
+
+
+def ensure_task_sprint_valid(
+    db: Session, sprint_id: int | None, project_id: int | None, owner_id: int
+) -> None:
+    if sprint_id is None:
+        return
+    sprint = crud.get_sprint(db, sprint_id, owner_id)
+    if not sprint:
+        raise HTTPException(status_code=404, detail="Спринт не найден")
+    if project_id is not None and sprint.project_id != project_id:
+        raise HTTPException(
+            status_code=400, detail="Спринт не принадлежит выбранному проекту"
+        )
 
 
 def chat_msg_to_response(message: ChatMessage) -> ChatMessageResponse:
@@ -490,6 +513,7 @@ def create_task(
     ensure_project_belongs_to_user(db, payload.project_id, current_user.id)
     if payload.assignee_agent_id and not crud.get_agent(db, payload.assignee_agent_id):
         raise HTTPException(status_code=404, detail="Агент не найден")
+    ensure_task_sprint_valid(db, payload.sprint_id, payload.project_id, current_user.id)
     task = crud.create_task(db, current_user.id, payload.model_dump())
     return task_to_response(task)
 
@@ -535,6 +559,7 @@ def agent_create_task(
     ensure_project_belongs_to_user(db, payload.project_id, owner_id)
     if payload.assignee_agent_id and not crud.get_agent(db, payload.assignee_agent_id):
         raise HTTPException(status_code=404, detail="Агент не найден")
+    ensure_task_sprint_valid(db, payload.sprint_id, payload.project_id, owner_id)
     data = payload.model_dump(exclude={"user_id"})
     task = crud.create_task(db, owner_id, data)
     return task_to_response(task)
@@ -556,6 +581,9 @@ def update_task(
         ensure_project_belongs_to_user(db, data["project_id"], current_user.id)
     if data.get("assignee_agent_id") and not crud.get_agent(db, data["assignee_agent_id"]):
         raise HTTPException(status_code=404, detail="Агент не найден")
+    project_id = data.get("project_id", task.project_id)
+    if "sprint_id" in data:
+        ensure_task_sprint_valid(db, data["sprint_id"], project_id, current_user.id)
 
     updated = crud.update_task(db, task, data)
     return task_to_response(updated)
@@ -616,6 +644,18 @@ def list_sprints(
 ):
     ensure_project_belongs_to_user(db, project_id, current_user.id)
     return [sprint_to_response(s) for s in crud.get_sprints(db, project_id, current_user.id)]
+
+
+@app.get("/api/sprints/{sprint_id}", response_model=SprintResponse)
+def get_sprint_by_id(
+    sprint_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    sprint = crud.get_sprint(db, sprint_id, current_user.id)
+    if not sprint:
+        raise HTTPException(status_code=404, detail="Спринт не найден")
+    return sprint_to_response(sprint)
 
 
 @app.post("/api/sprints", response_model=SprintResponse, status_code=status.HTTP_201_CREATED)

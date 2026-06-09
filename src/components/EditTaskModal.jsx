@@ -1,14 +1,27 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import Modal from './Modal'
 
 const PRIORITIES = ['High', 'Medium', 'Low']
 
-export default function EditTaskModal({ open, task, agents = [], onClose, onSave }) {
+export default function EditTaskModal({
+  open,
+  task,
+  agents = [],
+  sprints = [],
+  onClose,
+  onSave,
+}) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState('Medium')
   const [assigneeAgentId, setAssigneeAgentId] = useState('')
+  const [sprintId, setSprintId] = useState('')
+
+  const projectSprints = useMemo(() => {
+    if (!task?.projectId) return []
+    return sprints.filter((s) => s.projectId === task.projectId)
+  }, [sprints, task])
 
   useEffect(() => {
     if (task) {
@@ -16,21 +29,25 @@ export default function EditTaskModal({ open, task, agents = [], onClose, onSave
       setDescription(task.description || '')
       setPriority(task.priority || 'Medium')
       setAssigneeAgentId(task.assigneeAgentId || '')
+      setSprintId(task.sprintId ? String(task.sprintId) : '')
     }
   }, [task])
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim()) {
       toast.error('Введите название задачи')
       return
     }
-    onSave({
+    const ok = await onSave({
       title: title.trim(),
       description: description.trim(),
       priority,
       assigneeAgentId: assigneeAgentId || null,
+      sprintId: sprintId ? Number(sprintId) : null,
     })
-    onClose()
+    if (ok !== false) {
+      onClose()
+    }
   }
 
   if (!open || !task) return null
@@ -71,6 +88,24 @@ export default function EditTaskModal({ open, task, agents = [], onClose, onSave
             ))}
           </select>
         </div>
+        {task.projectId && projectSprints.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="edit-task-sprint" className="text-sm text-gray-400">Спринт</label>
+            <select
+              id="edit-task-sprint"
+              value={sprintId}
+              onChange={(e) => setSprintId(e.target.value)}
+              className="px-4 py-3 rounded-xl border border-dark-border bg-dark-card text-sm text-white outline-none focus:border-accent-purple/50"
+            >
+              <option value="">Без спринта</option>
+              {projectSprints.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.startDate} — {s.endDate})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           <label htmlFor="edit-task-agent" className="text-sm text-gray-400">Агент</label>
           <select

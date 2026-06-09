@@ -9,6 +9,7 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectsPage from './pages/ProjectsPage'
 import ProjectPage from './pages/ProjectPage'
+import SprintPage from './pages/SprintPage'
 import TeamPage from './pages/TeamPage'
 import ChatsPage from './pages/ChatsPage'
 import GeneralChatPage from './pages/GeneralChatPage'
@@ -70,6 +71,7 @@ export default function App() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/projects/:projectId" element={<ProjectPage />} />
+              <Route path="/projects/:projectId/sprints/:sprintId" element={<SprintPage />} />
               <Route path="/team" element={<TeamPage />} />
               <Route path="/chats" element={<ChatsPage />} />
               <Route path="/general-chat" element={<GeneralChatPage />} />

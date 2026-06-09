@@ -18,6 +18,7 @@ function TaskCardContent({
   dragHandleProps,
 }) {
   const agent = resolveAgent(task, agents)
+  const sprint = sprints.find((s) => s.id === task.sprintId)
   const projectSprints = task.projectId
     ? sprints.filter((s) => s.projectId === task.projectId)
     : []
@@ -38,6 +39,9 @@ function TaskCardContent({
           </button>
           {task.description && (
             <p className="text-xs text-gray-500 mt-1 line-clamp-2">{task.description}</p>
+          )}
+          {sprint && (
+            <p className="text-xs text-slate-400 mt-1">Спринт: {sprint.name}</p>
           )}
         </div>
         <span className={`status-badge shrink-0 ${priorityColors[task.priority] || ''}`}>

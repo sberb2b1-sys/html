@@ -229,6 +229,8 @@ export default function BacklogPage() {
       <CreateTaskModal
         open={createOpen}
         agents={agents}
+        projects={projects}
+        sprints={sprints}
         onClose={() => setCreateOpen(false)}
         onSave={handleCreateTask}
       />
@@ -237,11 +239,12 @@ export default function BacklogPage() {
         open={!!editingTask}
         task={editingTask}
         agents={agents}
+        sprints={sprints}
         onClose={() => setEditingTask(null)}
         onSave={async (updates) => {
           if (editingTask) {
-            await updateTask(editingTask.id, updates)
-            setEditingTask(null)
+            const ok = await updateTask(editingTask.id, updates)
+            if (ok !== false) setEditingTask(null)
           }
         }}
       />

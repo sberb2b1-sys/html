@@ -50,9 +50,11 @@ export function mapSprintFromApi(sprint) {
     id: sprint.id,
     projectId: sprint.project_id,
     name: sprint.name,
+    description: sprint.description || '',
     startDate: sprint.start_date,
     endDate: sprint.end_date,
     status: sprint.status,
+    createdAt: sprint.created_at ?? null,
   }
 }
 
@@ -60,6 +62,7 @@ export function mapSprintToApi(data) {
   return {
     project_id: data.projectId,
     name: data.name,
+    description: data.description || '',
     start_date: data.startDate,
     end_date: data.endDate,
     status: data.status || 'planning',

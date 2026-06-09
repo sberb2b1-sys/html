@@ -307,13 +307,20 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  assignTaskSprint: async (taskId, sprintId) => {
+  assignTaskSprint: async (taskId, sprintId, options = {}) => {
+    const { silent = false } = options
     try {
       await tasks.assignSprint(taskId, sprintId)
       await get().loadTasks()
-      toast.success('Спринт задачи обновлён')
+      if (!silent) {
+        toast.success('Спринт задачи обновлён')
+      }
+      return true
     } catch (error) {
-      toast.error(error.message || 'Не удалось привязать спринт')
+      if (!silent) {
+        toast.error(error.message || 'Не удалось привязать спринт')
+      }
+      return false
     }
   },
 
@@ -450,8 +457,10 @@ export const useStore = create((set, get) => ({
       await tasks.update(id, mapTaskToApi(data, get().agents))
       await get().loadTasks()
       toast.success('Задача обновлена')
+      return true
     } catch (error) {
-      toast.error(`Ошибка: ${error.message || 'не удалось обновить задачу'}`)
+      notifyApiError(error, 'не удалось обновить задачу')
+      return false
     }
   },
 

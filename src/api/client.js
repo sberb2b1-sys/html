@@ -167,6 +167,7 @@ export const tasks = {
 
 export const sprints = {
   getAll: (projectId) => apiRequest(`/sprints?project_id=${projectId}`),
+  getById: (id) => apiRequest(`/sprints/${id}`),
   create: (data) =>
     apiRequest('/sprints', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) =>

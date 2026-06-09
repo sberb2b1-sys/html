@@ -44,9 +44,11 @@ class Sprint(Base):
     id = Column(Integer, primary_key=True, index=True)
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False, index=True)
     name = Column(String(255), nullable=False)
+    description = Column(Text, default="")
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)
     status = Column(String(50), default="planning", nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     project = relationship("Project", back_populates="sprints")
     tasks = relationship("Task", back_populates="sprint")

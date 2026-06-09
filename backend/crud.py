@@ -202,3 +202,41 @@ def create_chat_message(
     db.commit()
     db.refresh(message)
     return message
+
+
+def get_chat_messages(db: Session, user_id: int, agent_id: str) -> list[ChatMessage]:
+    return (
+        db.query(ChatMessage)
+        .filter(ChatMessage.user_id == user_id, ChatMessage.agent_id == agent_id)
+        .order_by(ChatMessage.timestamp.asc())
+        .all()
+    )
+
+
+def get_chat_message(db: Session, message_id: int, user_id: int) -> ChatMessage | None:
+    return (
+        db.query(ChatMessage)
+        .filter(ChatMessage.id == message_id, ChatMessage.user_id == user_id)
+        .first()
+    )
+
+
+def update_chat_message_text(
+    db: Session, message_id: int, user_id: int, user_message: str
+) -> ChatMessage | None:
+    message = get_chat_message(db, message_id, user_id)
+    if not message:
+        return None
+    message.user_message = user_message
+    db.commit()
+    db.refresh(message)
+    return message
+
+
+def delete_chat_message(db: Session, message_id: int, user_id: int) -> bool:
+    message = get_chat_message(db, message_id, user_id)
+    if not message:
+        return False
+    db.delete(message)
+    db.commit()
+    return True

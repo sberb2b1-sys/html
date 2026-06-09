@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAppStore } from '../store/useAppStore'
+import { useStore } from '../store/useStore'
 import { maskPersonalData } from '../utils/mask'
 
 export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdProp }) {
@@ -7,16 +7,17 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
   const [editingId, setEditingId] = useState(null)
   const [editText, setEditText] = useState('')
   const [hoveredId, setHoveredId] = useState(null)
+  const [deletingId, setDeletingId] = useState(null)
+  const [savingEdit, setSavingEdit] = useState(false)
 
-  const storeSelectedAgentId = useAppStore((s) => s.selectedAgentId)
-  const agents = useAppStore((s) => s.agents)
-  const chatMessages = useAppStore((s) => s.chatMessages)
-  const isAgentTyping = useAppStore((s) => s.isAgentTyping)
-  const maskPdn = useAppStore((s) => s.maskPdn)
-  const updateChatMessage = useAppStore((s) => s.updateChatMessage)
-  const deleteChatMessage = useAppStore((s) => s.deleteChatMessage)
+  const agents = useStore((s) => s.agents)
+  const chatMessages = useStore((s) => s.chatMessages)
+  const isAgentTyping = useStore((s) => s.isAgentTyping)
+  const maskPdn = useStore((s) => s.maskPdn)
+  const updateChatMessage = useStore((s) => s.updateChatMessage)
+  const deleteChatMessage = useStore((s) => s.deleteChatMessage)
 
-  const selectedAgentId = selectedAgentIdProp !== undefined ? selectedAgentIdProp : storeSelectedAgentId
+  const selectedAgentId = selectedAgentIdProp
   const agent = selectedAgentId ? agents.find((a) => a.id === selectedAgentId) : null
   const messages = selectedAgentId ? (chatMessages[selectedAgentId] || []) : []
 
@@ -33,10 +34,31 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
     setEditText(msg.text)
   }
 
-  const saveEdit = () => {
-    if (editingId && editText.trim() && selectedAgentId) {
-      updateChatMessage(selectedAgentId, editingId, editText.trim())
+  const saveEdit = async () => {
+    if (!editingId || !editText.trim() || !selectedAgentId || savingEdit) return
+    setSavingEdit(true)
+    try {
+      const ok = await updateChatMessage(selectedAgentId, editingId, editText.trim())
+      if (ok) {
+        setEditingId(null)
+        setEditText('')
+      }
+    } finally {
+      setSavingEdit(false)
     }
+  }
+
+  const handleDelete = async (msg) => {
+    if (!selectedAgentId || deletingId) return
+    setDeletingId(msg.id)
+    try {
+      await deleteChatMessage(selectedAgentId, msg.id)
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  const cancelEdit = () => {
     setEditingId(null)
     setEditText('')
   }
@@ -98,15 +120,19 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
             <div className={`relative max-w-[70%] ${msg.from === 'user' ? 'items-end' : ''}`}>
               {editingId === msg.id && msg.from === 'user' ? (
                 <div className="flex flex-col gap-2">
-                  <input
+                  <textarea
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
-                    className="px-3 py-2 rounded-lg border border-dark-border bg-dark-card text-sm text-white outline-none"
-                    onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+                    rows={2}
+                    className="px-3 py-2 rounded-lg border border-dark-border bg-dark-card text-sm text-white outline-none focus:border-accent-purple/50 resize-none w-full min-w-[200px]"
                   />
                   <div className="flex gap-2 justify-end">
-                    <button type="button" onClick={saveEdit} className="text-xs text-accent-violet">Сохранить</button>
-                    <button type="button" onClick={() => setEditingId(null)} className="text-xs text-gray-500">Отмена</button>
+                    <button type="button" onClick={saveEdit} disabled={savingEdit} className="text-xs text-accent-violet hover:underline disabled:opacity-50">
+                      {savingEdit ? 'Сохранение...' : 'Сохранить'}
+                    </button>
+                    <button type="button" onClick={cancelEdit} disabled={savingEdit} className="text-xs text-gray-500 hover:underline disabled:opacity-50">
+                      Отменить
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -127,8 +153,23 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
               )}
               {msg.from === 'user' && hoveredId === msg.id && editingId !== msg.id && (
                 <div className="absolute -left-14 top-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button type="button" onClick={() => startEdit(msg)} title="Редактировать">✏️</button>
-                  <button type="button" onClick={() => deleteChatMessage(selectedAgentId, msg.id)} title="Удалить">🗑️</button>
+                  <button
+                    type="button"
+                    onClick={() => startEdit(msg)}
+                    className="text-sm hover:scale-110 transition-transform"
+                    title="Редактировать"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(msg)}
+                    disabled={deletingId === msg.id}
+                    className="text-sm hover:scale-110 transition-transform disabled:opacity-40 disabled:hover:scale-100"
+                    title="Удалить"
+                  >
+                    {deletingId === msg.id ? '…' : '🗑️'}
+                  </button>
                 </div>
               )}
             </div>

@@ -8,6 +8,8 @@ import {
   mapTaskFromApi,
   mapTaskToApi,
   mapChatResponse,
+  mapChatHistory,
+  parseChatMessageId,
 } from '../api/mappers'
 import { safeLog } from '../utils/mask'
 import { agents as fallbackAgents } from '../mocks/agents'
@@ -128,24 +130,82 @@ export const useStore = create((set, get) => ({
   toggleMaskPdn: () => set((state) => ({ maskPdn: !state.maskPdn })),
   setUserRole: (role) => set({ userRole: role }),
 
-  updateChatMessage: (agentId, messageId, text) => {
-    set((state) => ({
-      chatMessages: {
-        ...state.chatMessages,
-        [agentId]: (state.chatMessages[agentId] || []).map((m) =>
-          m.id === messageId ? { ...m, text } : m
-        ),
-      },
-    }))
+  updateChatMessage: async (agentId, messageId, text) => {
+    const dbId = parseChatMessageId(messageId)
+    if (!dbId) {
+      set((state) => ({
+        chatMessages: {
+          ...state.chatMessages,
+          [agentId]: (state.chatMessages[agentId] || []).map((m) =>
+            m.id === messageId ? { ...m, text } : m
+          ),
+        },
+      }))
+      return true
+    }
+
+    try {
+      const response = await chat.updateMessage(dbId, text)
+      const { userMessage } = mapChatResponse(response)
+      set((state) => ({
+        chatMessages: {
+          ...state.chatMessages,
+          [agentId]: (state.chatMessages[agentId] || []).map((m) =>
+            m.id === messageId ? { ...m, text: userMessage.text } : m
+          ),
+        },
+      }))
+      toast.success('Сообщение обновлено')
+      return true
+    } catch (error) {
+      toast.error(error.message || 'Не удалось обновить сообщение')
+      return false
+    }
   },
 
-  deleteChatMessage: (agentId, messageId) => {
-    set((state) => ({
-      chatMessages: {
-        ...state.chatMessages,
-        [agentId]: (state.chatMessages[agentId] || []).filter((m) => m.id !== messageId),
-      },
-    }))
+  deleteChatMessage: async (agentId, messageId) => {
+    const dbId = parseChatMessageId(messageId)
+    if (!dbId) {
+      set((state) => ({
+        chatMessages: {
+          ...state.chatMessages,
+          [agentId]: (state.chatMessages[agentId] || []).filter((m) => m.id !== messageId),
+        },
+      }))
+      return true
+    }
+
+    try {
+      await chat.deleteMessage(dbId)
+      set((state) => ({
+        chatMessages: {
+          ...state.chatMessages,
+          [agentId]: (state.chatMessages[agentId] || []).filter(
+            (m) => m.id !== messageId && m.id !== `msg-${dbId}-agent`
+          ),
+        },
+      }))
+      toast.success('Сообщение удалено')
+      return true
+    } catch (error) {
+      toast.error(error.message || 'Не удалось удалить сообщение')
+      return false
+    }
+  },
+
+  loadChatMessages: async (agentId) => {
+    if (!agentId) return
+    try {
+      const records = await chat.getMessages(agentId)
+      set((state) => ({
+        chatMessages: {
+          ...state.chatMessages,
+          [agentId]: mapChatHistory(records),
+        },
+      }))
+    } catch (error) {
+      toast.error(error.message || 'Не удалось загрузить историю чата')
+    }
   },
 
   sendGeneralChatMessage: (message) => {

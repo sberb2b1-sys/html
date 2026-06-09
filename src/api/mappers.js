@@ -96,15 +96,30 @@ export function mapChatResponse(response) {
   return {
     userMessage: {
       id: `msg-${response.id}-user`,
+      chatId: response.id,
       from: 'user',
       text: response.user_message,
       time,
     },
     agentMessage: {
       id: `msg-${response.id}-agent`,
+      chatId: response.id,
       from: 'agent',
       text: response.reply || response.agent_response,
       time,
     },
   }
+}
+
+export function mapChatHistory(records) {
+  return records.flatMap((record) => {
+    const { userMessage, agentMessage } = mapChatResponse(record)
+    return [userMessage, agentMessage]
+  })
+}
+
+/** Извлекает ID записи в БД из id пузырька чата (msg-42-user → 42). */
+export function parseChatMessageId(messageId) {
+  const match = String(messageId).match(/^msg-(\d+)-user$/)
+  return match ? Number(match[1]) : null
 }

@@ -153,9 +153,20 @@ export const agents = {
 }
 
 export const chat = {
+  getMessages: (agentId) => apiRequest(`/chat/${agentId}/messages`),
+
   send: (agentId, message) =>
     apiRequest(`/chat/${agentId}`, {
       method: 'POST',
       body: JSON.stringify({ message }),
     }),
+
+  updateMessage: (messageId, message) =>
+    apiRequest(`/chat/messages/${messageId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ message }),
+    }),
+
+  deleteMessage: (messageId) =>
+    apiRequest(`/chat/messages/${messageId}`, { method: 'DELETE' }),
 }

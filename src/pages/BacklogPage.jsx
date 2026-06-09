@@ -220,8 +220,11 @@ export default function BacklogPage() {
         task={editingTask}
         agents={agents}
         onClose={() => setEditingTask(null)}
-        onSave={(updates) => {
-          if (editingTask) updateTask(editingTask.id, updates)
+        onSave={async (updates) => {
+          if (editingTask) {
+            await updateTask(editingTask.id, updates)
+            setEditingTask(null)
+          }
         }}
       />
 

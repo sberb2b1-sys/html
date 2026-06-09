@@ -117,6 +117,10 @@ class ChatRequest(BaseModel):
     message: str = Field(min_length=1)
 
 
+class ChatMessageUpdate(BaseModel):
+    message: str = Field(min_length=1)
+
+
 class ChatResponse(BaseModel):
     id: int
     agent_id: str
@@ -499,3 +503,60 @@ def send_chat_message(
         reply=message.agent_response,
         timestamp=message.timestamp.isoformat() if message.timestamp else None,
     )
+
+
+@app.get("/api/chat/{agent_id}/messages", response_model=list[ChatResponse])
+def list_chat_messages(
+    agent_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    agent = crud.get_agent(db, agent_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="Агент не найден")
+
+    messages = crud.get_chat_messages(db, current_user.id, agent_id)
+    return [
+        ChatResponse(
+            id=m.id,
+            agent_id=m.agent_id,
+            user_message=m.user_message,
+            agent_response=m.agent_response,
+            reply=m.agent_response,
+            timestamp=m.timestamp.isoformat() if m.timestamp else None,
+        )
+        for m in messages
+    ]
+
+
+@app.put("/api/chat/messages/{message_id}", response_model=ChatResponse)
+def update_chat_message(
+    message_id: int,
+    payload: ChatMessageUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    message = crud.update_chat_message_text(
+        db, message_id, current_user.id, payload.message
+    )
+    if not message:
+        raise HTTPException(status_code=404, detail="Сообщение не найдено")
+
+    return ChatResponse(
+        id=message.id,
+        agent_id=message.agent_id,
+        user_message=message.user_message,
+        agent_response=message.agent_response,
+        reply=message.agent_response,
+        timestamp=message.timestamp.isoformat() if message.timestamp else None,
+    )
+
+
+@app.delete("/api/chat/messages/{message_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_chat_message(
+    message_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    if not crud.delete_chat_message(db, message_id, current_user.id):
+        raise HTTPException(status_code=404, detail="Сообщение не найдено")

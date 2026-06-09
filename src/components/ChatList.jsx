@@ -1,13 +1,8 @@
 import AgentCard from './AgentCard'
-import { useAppStore } from '../store/useAppStore'
+import { useStore } from '../store/useStore'
 
-export default function ChatList({ selectedAgentId: selectedAgentIdProp, onSelectAgent }) {
-  const agents = useAppStore((s) => s.agents)
-  const storeSelectedAgentId = useAppStore((s) => s.selectedAgentId)
-  const storeSelectAgent = useAppStore((s) => s.selectAgent)
-
-  const selectedAgentId = selectedAgentIdProp !== undefined ? selectedAgentIdProp : storeSelectedAgentId
-  const selectAgent = onSelectAgent ?? storeSelectAgent
+export default function ChatList({ selectedAgentId, onSelectAgent }) {
+  const agents = useStore((s) => s.agents)
 
   return (
     <div className="w-[320px] border-r border-dark-border flex flex-col shrink-0 bg-dark-sidebar">
@@ -28,7 +23,7 @@ export default function ChatList({ selectedAgentId: selectedAgentIdProp, onSelec
             key={agent.id}
             className={`rounded-lg ${selectedAgentId === agent.id ? 'bg-[rgba(124,58,237,0.15)]' : ''}`}
           >
-            <AgentCard agent={agent} compact onClick={() => selectAgent(agent.id)} />
+            <AgentCard agent={agent} compact onClick={() => onSelectAgent(agent.id)} />
           </div>
         ))}
       </div>

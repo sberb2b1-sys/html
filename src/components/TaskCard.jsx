@@ -47,7 +47,12 @@ function TaskCardContent({ task, agents = [], onEdit, onDelete, dragHandleProps 
               <span className="text-xs text-gray-400 max-w-[80px] truncate">{agent.name.split(' ')[0]}</span>
             </div>
           ) : (
-            <span className="text-xs text-gray-600">Не назначен</span>
+            <div className="flex items-center gap-1.5" title="Не назначен">
+              <div className="w-6 h-6 rounded-full bg-gray-700/80 flex items-center justify-center text-[10px] text-gray-500 shrink-0">
+                ?
+              </div>
+              <span className="text-xs text-gray-600">Не назначен</span>
+            </div>
           )}
           {onDelete && (
             <button

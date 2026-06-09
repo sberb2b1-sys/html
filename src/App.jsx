@@ -7,7 +7,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectsPage from './pages/ProjectsPage'
-import ProjectTeamPage from './pages/ProjectTeamPage'
+import ProjectPage from './pages/ProjectPage'
 import TeamPage from './pages/TeamPage'
 import ChatsPage from './pages/ChatsPage'
 import GeneralChatPage from './pages/GeneralChatPage'
@@ -64,7 +64,7 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/projects" element={<ProjectsPage />} />
-              <Route path="/projects/:projectId" element={<ProjectTeamPage />} />
+              <Route path="/projects/:projectId" element={<ProjectPage />} />
               <Route path="/team" element={<TeamPage />} />
               <Route path="/chats" element={<ChatsPage />} />
               <Route path="/general-chat" element={<GeneralChatPage />} />

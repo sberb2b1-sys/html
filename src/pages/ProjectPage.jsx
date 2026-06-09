@@ -2,8 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import AgentCard from '../components/AgentCard'
 import ConfirmDialog from '../components/ConfirmDialog'
-import RoleSwitcher from '../components/RoleSwitcher'
 import { useStore } from '../store/useStore'
+
+const TABS = [
+  { id: 'tasks', label: 'Задачи' },
+  { id: 'team', label: 'Команда' },
+]
 
 function taskWord(count) {
   const mod10 = count % 10
@@ -13,7 +17,7 @@ function taskWord(count) {
   return 'задач'
 }
 
-export default function ProjectTeamPage() {
+export default function ProjectPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
   const id = Number(projectId)
@@ -26,6 +30,7 @@ export default function ProjectTeamPage() {
   const loadAgents = useStore((s) => s.loadAgents)
   const deleteProject = useStore((s) => s.deleteProject)
 
+  const [activeTab, setActiveTab] = useState('tasks')
   const [deleteOpen, setDeleteOpen] = useState(false)
 
   useEffect(() => {
@@ -96,46 +101,79 @@ export default function ProjectTeamPage() {
             Удалить проект
           </button>
         </div>
+
+        <div className="flex items-center gap-2 mt-6">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+                activeTab === tab.id
+                  ? 'bg-[rgba(124,58,237,0.15)] text-white font-inter-medium'
+                  : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-8">
-        <div className="max-w-xs">
-          <RoleSwitcher />
-        </div>
+      <div className="flex-1 overflow-y-auto p-8">
+        {activeTab === 'tasks' && (
+          <section>
+            {projectTasks.length === 0 ? (
+              <p className="text-sm text-gray-500">Задач в этом проекте пока нет</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {projectTasks.map((task) => {
+                  const agent = agents.find((a) => a.id === task.assigneeAgentId)
+                  return (
+                    <div key={task.id} className="card-border p-4 flex flex-col gap-2">
+                      <p className="text-sm font-inter-medium text-white">{task.title}</p>
+                      {task.description && (
+                        <p className="text-xs text-gray-500 line-clamp-2">{task.description}</p>
+                      )}
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span className="status-badge">{task.status}</span>
+                        <div className="flex items-center gap-1.5">
+                          {agent ? (
+                            <>
+                              <div
+                                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-inter-semibold text-white"
+                                style={{ backgroundColor: agent.avatarColor }}
+                              >
+                                {agent.name.charAt(0)}
+                              </div>
+                              <span>{agent.name.split(' ')[0]}</span>
+                            </>
+                          ) : (
+                            <span className="text-gray-600">Не назначен</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+        )}
 
-        <section>
-          <h2 className="text-base font-inter-semibold text-white mb-4">Задачи проекта</h2>
-          {projectTasks.length === 0 ? (
-            <p className="text-sm text-gray-500">Задач в этом проекте пока нет</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {projectTasks.map((task) => (
-                <div key={task.id} className="card-border p-4 flex flex-col gap-2">
-                  <p className="text-sm font-inter-medium text-white">{task.title}</p>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span className="status-badge">{task.status}</span>
-                    <span>{task.assignee || 'Не назначен'}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section>
-          <h2 className="text-base font-inter-semibold text-white mb-4">
-            Команда проекта ({projectAgents.length})
-          </h2>
-          {projectAgents.length === 0 ? (
-            <p className="text-sm text-gray-500">Назначьте агентов на задачи проекта</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {projectAgents.map((agent) => (
-                <AgentCard key={agent.id} agent={agent} compact />
-              ))}
-            </div>
-          )}
-        </section>
+        {activeTab === 'team' && (
+          <section>
+            {projectAgents.length === 0 ? (
+              <p className="text-sm text-gray-500">Назначьте агентов на задачи проекта</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {projectAgents.map((agent) => (
+                  <AgentCard key={agent.id} agent={agent} compact />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
       </div>
 
       <ConfirmDialog

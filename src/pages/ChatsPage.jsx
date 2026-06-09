@@ -9,11 +9,18 @@ export default function ChatsPage() {
   const [selectedAgentId, setSelectedAgentId] = useState(null)
 
   const loadAgents = useStore((s) => s.loadAgents)
+  const loadChatMessages = useStore((s) => s.loadChatMessages)
   const sendMessageToAgent = useStore((s) => s.sendMessageToAgent)
 
   useEffect(() => {
     loadAgents()
   }, [loadAgents])
+
+  useEffect(() => {
+    if (selectedAgentId) {
+      loadChatMessages(selectedAgentId)
+    }
+  }, [selectedAgentId, loadChatMessages])
 
   const handleSelectAgent = useCallback((agentId) => {
     setSelectedAgentId(agentId)

@@ -148,6 +148,7 @@ sudo systemctl status itteam-api
 | `curl api.itteam.tech` не отвечает | Проверьте A-запись `api` → IP VPS |
 | certbot ошибка | DNS ещё не обновился — подождите |
 | Браузер: **CORS** + **502** | Это не CORS: API не запущен. `sudo journalctl -u itteam-api -n 80`, затем `sudo systemctl restart itteam-api` |
+| Браузер: **CORS** + **504** на `/analyze` | Таймаут nginx (анализ идёт 2–5 мин). Обновите nginx: `proxy_read_timeout 600s;` в `/etc/nginx/sites-available/api.itteam.tech`, затем `sudo nginx -t && sudo systemctl reload nginx`. Фронт опрашивает статус job — POST `/analyze` должен отвечать сразу (202). |
 | CORS при рабочем API (200) | Убедитесь, что `VITE_API_URL` задан и фронт пересобран |
 | Порт закрыт | В панели reg.ru откройте порты **80** и **443** |
 

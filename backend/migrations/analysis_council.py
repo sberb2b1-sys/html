@@ -67,6 +67,28 @@ def run_analysis_council_migration() -> None:
                 )
             )
 
+        if "analysis_jobs" not in tables:
+            conn.execute(
+                text(
+                    """
+                    CREATE TABLE analysis_jobs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        project_id INTEGER NOT NULL,
+                        owner_id INTEGER NOT NULL,
+                        user_idea TEXT NOT NULL,
+                        status VARCHAR(20) DEFAULT 'pending' NOT NULL,
+                        progress VARCHAR(255) DEFAULT '',
+                        result_json TEXT DEFAULT '',
+                        error TEXT DEFAULT '',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        completed_at TIMESTAMP,
+                        FOREIGN KEY(project_id) REFERENCES projects(id),
+                        FOREIGN KEY(owner_id) REFERENCES users(id)
+                    )
+                    """
+                )
+            )
+
     # Сид совет аналитиков для существующих проектов
     from sqlalchemy.orm import Session
 

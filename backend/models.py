@@ -148,6 +148,21 @@ class AnalysisProposal(Base):
     report = relationship("AnalysisReport", back_populates="proposals")
 
 
+class AnalysisJob(Base):
+    __tablename__ = "analysis_jobs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    user_idea = Column(Text, nullable=False)
+    status = Column(String(20), default="pending", nullable=False, index=True)
+    progress = Column(String(255), default="")
+    result_json = Column(Text, default="")
+    error = Column(Text, default="")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+
+
 class TaskApproval(Base):
     __tablename__ = "task_approvals"
 

@@ -251,6 +251,22 @@ export const analysis = {
       body: JSON.stringify({ idea }),
       headers: { 'X-User-Role': 'po' },
     }),
+  getJob: (projectId, jobId) =>
+    apiRequest(`/projects/${projectId}/analyze/jobs/${jobId}`),
+  waitForJob: async (projectId, jobId, { intervalMs = 3000, maxWaitMs = 900000 } = {}) => {
+    const started = Date.now()
+    while (Date.now() - started < maxWaitMs) {
+      const status = await apiRequest(`/projects/${projectId}/analyze/jobs/${jobId}`)
+      if (status.status === 'completed' && status.result) {
+        return status.result
+      }
+      if (status.status === 'failed') {
+        throw new Error(status.error || 'Анализ не удался')
+      }
+      await new Promise((resolve) => setTimeout(resolve, intervalMs))
+    }
+    throw new Error('Превышено время ожидания анализа')
+  },
   getHistory: (projectId) =>
     apiRequest(`/projects/${projectId}/analysis-history`),
 }

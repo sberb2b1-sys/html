@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from models import (
     Agent,
+    AnalysisJob,
     AnalysisProposal,
     AnalysisReport,
     ChatMessage,
@@ -737,3 +738,64 @@ def reject_task(
     db.refresh(approval)
     db.refresh(task)
     return task
+
+
+def create_analysis_job(
+    db: Session, project_id: int, owner_id: int, user_idea: str
+) -> AnalysisJob | None:
+    if not get_project(db, project_id, owner_id):
+        return None
+    job = AnalysisJob(
+        project_id=project_id,
+        owner_id=owner_id,
+        user_idea=user_idea,
+        status="pending",
+        progress="В очереди",
+    )
+    db.add(job)
+    db.commit()
+    db.refresh(job)
+    return job
+
+
+def get_analysis_job(
+    db: Session, job_id: int, project_id: int, owner_id: int
+) -> AnalysisJob | None:
+    if not get_project(db, project_id, owner_id):
+        return None
+    return (
+        db.query(AnalysisJob)
+        .filter(
+            AnalysisJob.id == job_id,
+            AnalysisJob.project_id == project_id,
+            AnalysisJob.owner_id == owner_id,
+        )
+        .first()
+    )
+
+
+def update_analysis_job(
+    db: Session,
+    job: AnalysisJob,
+    *,
+    status: str | None = None,
+    progress: str | None = None,
+    result_json: str | None = None,
+    error: str | None = None,
+    completed: bool = False,
+) -> AnalysisJob:
+    from datetime import datetime, timezone
+
+    if status is not None:
+        job.status = status
+    if progress is not None:
+        job.progress = progress
+    if result_json is not None:
+        job.result_json = result_json
+    if error is not None:
+        job.error = error
+    if completed:
+        job.completed_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(job)
+    return job

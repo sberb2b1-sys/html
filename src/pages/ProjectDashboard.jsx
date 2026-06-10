@@ -25,6 +25,7 @@ export default function ProjectDashboard() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [idea, setIdea] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
+  const [analyzeProgress, setAnalyzeProgress] = useState('')
 
   const projectTasks = useMemo(
     () => tasks.filter((t) => t.projectId === projectId && t.status !== 'pending_approval'),
@@ -45,8 +46,20 @@ export default function ProjectDashboard() {
       return
     }
     setAnalyzing(true)
+    setAnalyzeProgress('Запуск анализа...')
+    let poll = null
     try {
-      const result = await analysis.run(projectId, idea.trim())
+      const { job_id: jobId } = await analysis.run(projectId, idea.trim())
+      poll = setInterval(async () => {
+        try {
+          const status = await analysis.getJob(projectId, jobId)
+          if (status.progress) setAnalyzeProgress(status.progress)
+        } catch {
+          /* ignore poll errors */
+        }
+      }, 3000)
+
+      const result = await analysis.waitForJob(projectId, jobId)
       toast.success(`Задача создана! Победил: ${result.winner}`)
       await loadTasks(projectId)
       navigate(`/projects/${projectId}/approvals`)
@@ -55,7 +68,9 @@ export default function ProjectDashboard() {
         toast.error(error.message || 'Ошибка при анализе')
       }
     } finally {
+      if (poll) clearInterval(poll)
       setAnalyzing(false)
+      setAnalyzeProgress('')
     }
   }
 
@@ -108,8 +123,13 @@ export default function ProjectDashboard() {
               disabled={analyzing}
               className="mt-4 btn-primary disabled:opacity-50"
             >
-              {analyzing ? 'Анализируем... (это может занять несколько минут)' : 'Запустить авто-анализ'}
+              {analyzing
+                ? analyzeProgress || 'Анализируем... (2–5 минут)'
+                : 'Запустить авто-анализ'}
             </button>
+            {analyzing && analyzeProgress && (
+              <p className="text-xs text-gray-500 mt-2">{analyzeProgress}</p>
+            )}
           </section>
         )}
 

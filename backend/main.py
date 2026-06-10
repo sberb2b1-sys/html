@@ -1,10 +1,11 @@
+import json
 import os
 from contextlib import asynccontextmanager
 from datetime import date
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, status
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr, Field
@@ -12,7 +13,7 @@ from sqlalchemy.orm import Session
 
 import auth
 import crud
-from database import Base, engine, get_db, run_legacy_migrations
+from database import Base, engine, get_db, SessionLocal, run_legacy_migrations
 from migrations.add_owner_id import run_migration as run_owner_id_migration
 from migrations.add_sprints import run_add_sprints_migration
 from migrations.analysis_council import run_analysis_council_migration
@@ -20,6 +21,7 @@ from migrations.project_agents import run_project_agents_migration
 from migrations.sprint2 import run_sprint2_migrations
 from models import (
     Agent,
+    AnalysisJob,
     AnalysisReport,
     ChatMessage,
     GeneralMessage,
@@ -263,6 +265,20 @@ class AnalyzeIdeaResponse(BaseModel):
     winner: str
     report: str
     message: str
+
+
+class AnalyzeJobStartResponse(BaseModel):
+    job_id: int
+    status: str
+    message: str
+
+
+class AnalyzeJobStatusResponse(BaseModel):
+    job_id: int
+    status: str
+    progress: str
+    result: Optional[AnalyzeIdeaResponse] = None
+    error: Optional[str] = None
 
 
 class AnalysisReportResponse(BaseModel):
@@ -1157,15 +1173,127 @@ def approval_to_response(
 
 @app.post(
     "/api/projects/{project_id}/analyze",
-    response_model=AnalyzeIdeaResponse,
+    response_model=AnalyzeJobStartResponse,
+    status_code=status.HTTP_202_ACCEPTED,
 )
 async def analyze_idea(
+    project_id: int,
+    payload: AnalyzeIdeaRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+    _: None = Depends(require_po_role),
+):
+    project = crud.get_project(db, project_id, current_user.id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Проект не найден")
+
+    job = crud.create_analysis_job(db, project_id, current_user.id, payload.idea)
+    if not job:
+        raise HTTPException(status_code=404, detail="Проект не найден")
+
+    background_tasks.add_task(run_analysis_background, job.id)
+
+    return AnalyzeJobStartResponse(
+        job_id=job.id,
+        status=job.status,
+        message="Анализ запущен. Опросите статус через GET /analyze/jobs/{job_id}.",
+    )
+
+
+@app.get(
+    "/api/projects/{project_id}/analyze/jobs/{job_id}",
+    response_model=AnalyzeJobStatusResponse,
+)
+def get_analysis_job_status(
+    project_id: int,
+    job_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    job = crud.get_analysis_job(db, job_id, project_id, current_user.id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Задача анализа не найдена")
+
+    result = None
+    if job.status == "completed" and job.result_json:
+        try:
+            result = AnalyzeIdeaResponse(**json.loads(job.result_json))
+        except (json.JSONDecodeError, TypeError, ValueError):
+            result = None
+
+    return AnalyzeJobStatusResponse(
+        job_id=job.id,
+        status=job.status,
+        progress=job.progress or "",
+        result=result,
+        error=job.error or None,
+    )
+
+
+async def run_analysis_background(job_id: int) -> None:
+    db = SessionLocal()
+    try:
+        job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+        if not job:
+            return
+
+        crud.update_analysis_job(
+            db, job, status="running", progress="Совет аналитиков обсуждает идею..."
+        )
+
+        orchestrator = AgentOrchestrator(
+            job.project_id, job.user_idea, db, job.owner_id
+        )
+        result = await orchestrator.run_full_analysis()
+
+        crud.update_analysis_job(
+            db,
+            job,
+            status="completed",
+            progress="Готово",
+            result_json=json.dumps(result, ensure_ascii=False),
+            completed=True,
+        )
+    except HTTPException as exc:
+        job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+        if job:
+            crud.update_analysis_job(
+                db,
+                job,
+                status="failed",
+                progress="Ошибка",
+                error=str(exc.detail),
+                completed=True,
+            )
+    except Exception as exc:
+        job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+        if job:
+            crud.update_analysis_job(
+                db,
+                job,
+                status="failed",
+                progress="Ошибка",
+                error=str(exc),
+                completed=True,
+            )
+    finally:
+        db.close()
+
+
+@app.post(
+    "/api/projects/{project_id}/analyze/sync",
+    response_model=AnalyzeIdeaResponse,
+    include_in_schema=False,
+)
+async def analyze_idea_sync(
     project_id: int,
     payload: AnalyzeIdeaRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(auth.get_current_user),
     _: None = Depends(require_po_role),
 ):
+    """Синхронный анализ (только для локальной отладки)."""
     project = crud.get_project(db, project_id, current_user.id)
     if not project:
         raise HTTPException(status_code=404, detail="Проект не найден")

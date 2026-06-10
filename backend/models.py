@@ -73,7 +73,11 @@ class Agent(Base):
     is_online = Column(Boolean, default=True, nullable=False)
 
     project = relationship("Project", back_populates="agents")
-    tasks = relationship("Task", back_populates="assignee_agent")
+    tasks = relationship(
+        "Task",
+        back_populates="assignee_agent",
+        foreign_keys="Task.assignee_agent_id",
+    )
     chat_messages = relationship("ChatMessage", back_populates="agent")
     general_messages = relationship("GeneralMessage", back_populates="agent")
 
@@ -90,14 +94,46 @@ class Task(Base):
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
     sprint_id = Column(Integer, ForeignKey("sprints.id"), nullable=True, index=True)
     assignee_agent_id = Column(String(50), ForeignKey("agents.id"), nullable=True)
+    current_phase = Column(String(50), default="analysis", nullable=False)
+    current_agent_id = Column(String(50), ForeignKey("agents.id"), nullable=True)
+    current_artifact_id = Column(Integer, ForeignKey("artifacts.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     owner = relationship("User", back_populates="tasks")
     project = relationship("Project", back_populates="tasks")
     sprint = relationship("Sprint", back_populates="tasks")
-    assignee_agent = relationship("Agent", back_populates="tasks")
+    assignee_agent = relationship(
+        "Agent", back_populates="tasks", foreign_keys=[assignee_agent_id]
+    )
+    current_agent = relationship("Agent", foreign_keys=[current_agent_id])
     approval = relationship("TaskApproval", back_populates="task", uselist=False)
     analysis_report = relationship("AnalysisReport", back_populates="task", uselist=False)
+    artifacts = relationship(
+        "Artifact", back_populates="task", cascade="all, delete-orphan", foreign_keys="Artifact.task_id"
+    )
+    current_artifact = relationship(
+        "Artifact", foreign_keys=[current_artifact_id], post_update=True
+    )
+
+
+class Artifact(Base):
+    __tablename__ = "artifacts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    task_id = Column(Integer, ForeignKey("tasks.id"), nullable=False, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False, index=True)
+    agent_id = Column(String(50), ForeignKey("agents.id"), nullable=False, index=True)
+    artifact_type = Column(String(50), nullable=False, index=True)
+    title = Column(String(255), nullable=False)
+    content = Column(Text, nullable=False)
+    file_url = Column(String(500), nullable=True)
+    status = Column(String(50), default="draft", nullable=False, index=True)
+    feedback = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    approved_at = Column(DateTime(timezone=True), nullable=True)
+
+    task = relationship("Task", back_populates="artifacts", foreign_keys=[task_id])
+    agent = relationship("Agent")
 
 
 class ChatMessage(Base):

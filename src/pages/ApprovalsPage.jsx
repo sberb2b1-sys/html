@@ -37,7 +37,7 @@ export default function ApprovalsPage() {
   const approveTask = async (taskId) => {
     try {
       await approvalsApi.approve(projectId, taskId)
-      toast.success('Задача утверждена')
+      toast.success('Задача утверждена — агенты начали работу. Следите за чатами и артефактами.')
       await loadTasks(projectId)
       loadApprovals()
     } catch (error) {

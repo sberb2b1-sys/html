@@ -14,6 +14,7 @@ import BacklogPage from './pages/BacklogPage'
 import SprintsPage from './pages/SprintsPage'
 import SprintPage from './pages/SprintPage'
 import ApprovalsPage from './pages/ApprovalsPage'
+import ArtifactsReviewPage from './pages/ArtifactsReviewPage'
 import AgentSettingsPage from './pages/AgentSettingsPage'
 import DemoPage from './pages/DemoPage'
 import PrivacyPage from './pages/PrivacyPage'
@@ -78,6 +79,7 @@ export default function App() {
               <Route path="sprints" element={<SprintsPage />} />
               <Route path="sprints/:sprintId" element={<SprintPage />} />
               <Route path="approvals" element={<ApprovalsPage />} />
+              <Route path="artifacts" element={<ArtifactsReviewPage />} />
               <Route path="agents" element={<AgentSettingsPage />} />
             </Route>
 

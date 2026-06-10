@@ -79,7 +79,9 @@ export default function BacklogPage() {
   const projectTasks = useMemo(
     () =>
       tasks.filter(
-        (t) => t.projectId === projectId && t.status !== 'pending_approval' && t.status !== 'rejected'
+        (t) =>
+          t.projectId === projectId &&
+          !['pending_approval', 'waiting_approval', 'approved', 'rejected'].includes(t.status)
       ),
     [tasks, projectId]
   )

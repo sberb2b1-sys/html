@@ -271,6 +271,23 @@ export const analysis = {
     apiRequest(`/projects/${projectId}/analysis-history`),
 }
 
+export const artifacts = {
+  getPending: (projectId) =>
+    apiRequest(`/projects/${projectId}/artifacts/pending`),
+  getAll: (projectId) => apiRequest(`/projects/${projectId}/artifacts`),
+  approve: (projectId, artifactId) =>
+    apiRequest(`/projects/${projectId}/artifacts/${artifactId}/approve`, {
+      method: 'POST',
+      headers: { 'X-User-Role': 'po' },
+    }),
+  reject: (projectId, artifactId, feedback) =>
+    apiRequest(`/projects/${projectId}/artifacts/${artifactId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ feedback }),
+      headers: { 'X-User-Role': 'po' },
+    }),
+}
+
 export const approvals = {
   getAll: (projectId, pendingOnly = true) =>
     apiRequest(

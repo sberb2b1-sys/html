@@ -8,6 +8,7 @@ from models import (
     AnalysisJob,
     AnalysisProposal,
     AnalysisReport,
+    Artifact,
     ChatMessage,
     GeneralMessage,
     Project,
@@ -721,7 +722,8 @@ def get_task_approval(
 
 def approve_task(db: Session, approval: TaskApproval, task: Task) -> Task:
     approval.status = "approved"
-    task.status = "todo"
+    task.status = "approved"
+    task.current_phase = "analysis"
     db.commit()
     db.refresh(approval)
     db.refresh(task)
@@ -772,6 +774,99 @@ def get_analysis_job(
         )
         .first()
     )
+
+
+# Artifacts
+def create_artifact(
+    db: Session,
+    *,
+    task_id: int,
+    project_id: int,
+    agent_id: str,
+    artifact_type: str,
+    title: str,
+    content: str,
+    file_url: str | None = None,
+    status: str = "draft",
+) -> Artifact:
+    row = Artifact(
+        task_id=task_id,
+        project_id=project_id,
+        agent_id=agent_id,
+        artifact_type=artifact_type,
+        title=title,
+        content=content,
+        file_url=file_url,
+        status=status,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return row
+
+
+def get_artifact(
+    db: Session, artifact_id: int, project_id: int, owner_id: int
+) -> Artifact | None:
+    if not get_project(db, project_id, owner_id):
+        return None
+    return (
+        db.query(Artifact)
+        .filter(Artifact.id == artifact_id, Artifact.project_id == project_id)
+        .first()
+    )
+
+
+def get_pending_artifacts(db: Session, project_id: int, owner_id: int) -> list[Artifact]:
+    if not get_project(db, project_id, owner_id):
+        return []
+    return (
+        db.query(Artifact)
+        .join(Task, Task.id == Artifact.task_id)
+        .filter(
+            Artifact.project_id == project_id,
+            Artifact.status == "pending_approval",
+            Task.owner_id == owner_id,
+        )
+        .order_by(Artifact.created_at.desc())
+        .all()
+    )
+
+
+def get_project_artifacts(
+    db: Session, project_id: int, owner_id: int
+) -> list[Artifact]:
+    if not get_project(db, project_id, owner_id):
+        return []
+    return (
+        db.query(Artifact)
+        .join(Task, Task.id == Artifact.task_id)
+        .filter(Artifact.project_id == project_id, Task.owner_id == owner_id)
+        .order_by(Artifact.created_at.desc())
+        .all()
+    )
+
+
+def approve_artifact(db: Session, artifact: Artifact) -> Artifact:
+    from datetime import datetime, timezone
+
+    artifact.status = "approved"
+    artifact.approved_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(artifact)
+    return artifact
+
+
+def reject_artifact(db: Session, artifact: Artifact, feedback: str) -> Artifact:
+    artifact.status = "rejected"
+    artifact.feedback = feedback or "Требуются доработки"
+    db.commit()
+    db.refresh(artifact)
+    task = db.query(Task).filter(Task.id == artifact.task_id).first()
+    if task:
+        task.status = "waiting_approval"
+        db.commit()
+    return artifact
 
 
 def update_analysis_job(

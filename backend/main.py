@@ -17,12 +17,14 @@ from database import Base, engine, get_db, SessionLocal, run_legacy_migrations
 from migrations.add_owner_id import run_migration as run_owner_id_migration
 from migrations.add_sprints import run_add_sprints_migration
 from migrations.analysis_council import run_analysis_council_migration
+from migrations.artifacts import run_artifacts_migration
 from migrations.project_agents import run_project_agents_migration
 from migrations.sprint2 import run_sprint2_migrations
 from models import (
     Agent,
     AnalysisJob,
     AnalysisReport,
+    Artifact,
     ChatMessage,
     GeneralMessage,
     Project,
@@ -32,6 +34,7 @@ from models import (
     User,
 )
 from services.orchestrator import AgentOrchestrator
+from services.task_worker import run_artifact_continuation, run_task_execution
 from services.llm import (
     DeepSeekAPIError,
     DeepSeekNotConfigured,
@@ -320,6 +323,27 @@ class RejectApprovalRequest(BaseModel):
     reason: str = Field(default="Требуются доработки", min_length=1)
 
 
+class RejectArtifactRequest(BaseModel):
+    feedback: str = Field(default="Требуются доработки", min_length=1)
+
+
+class ArtifactResponse(BaseModel):
+    id: int
+    task_id: int
+    task_title: str
+    project_id: int
+    agent_id: str
+    agent_name: Optional[str] = None
+    artifact_type: str
+    title: str
+    content: str
+    file_url: Optional[str] = None
+    status: str
+    feedback: Optional[str] = None
+    created_at: Optional[str] = None
+    approved_at: Optional[str] = None
+
+
 # ---------------------------------------------------------------------------
 # App
 # ---------------------------------------------------------------------------
@@ -334,6 +358,7 @@ async def lifespan(app: FastAPI):
     run_add_sprints_migration()
     run_project_agents_migration()
     run_analysis_council_migration()
+    run_artifacts_migration()
     db = next(get_db())
     try:
         crud.ensure_agent_task_prompts(db)
@@ -1352,9 +1377,10 @@ def list_approvals(
 
 
 @app.post("/api/projects/{project_id}/approvals/{task_id}/approve")
-def approve_task_endpoint(
+async def approve_task_endpoint(
     project_id: int,
     task_id: int,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(auth.get_current_user),
     _: None = Depends(require_po_role),
@@ -1366,7 +1392,11 @@ def approve_task_endpoint(
     if not task:
         raise HTTPException(status_code=404, detail="Задача не найдена")
     crud.approve_task(db, approval, task)
-    return {"message": "Задача утверждена", "task_id": task_id}
+    background_tasks.add_task(run_task_execution, task_id)
+    return {
+        "message": "Задача утверждена, агенты начали работу",
+        "task_id": task_id,
+    }
 
 
 @app.post("/api/projects/{project_id}/approvals/{task_id}/reject")
@@ -1386,3 +1416,95 @@ def reject_task_endpoint(
         raise HTTPException(status_code=404, detail="Задача не найдена")
     crud.reject_task(db, approval, task, payload.reason)
     return {"message": "Задача отправлена на доработку", "task_id": task_id}
+
+
+# ---------------------------------------------------------------------------
+# Artifacts (JWT, PO for approve/reject)
+# ---------------------------------------------------------------------------
+
+
+def artifact_to_response(artifact: Artifact, db: Session) -> ArtifactResponse:
+    task = db.query(Task).filter(Task.id == artifact.task_id).first()
+    agent = crud.get_agent(db, artifact.agent_id)
+    return ArtifactResponse(
+        id=artifact.id,
+        task_id=artifact.task_id,
+        task_title=task.title if task else "",
+        project_id=artifact.project_id,
+        agent_id=artifact.agent_id,
+        agent_name=agent.name if agent else None,
+        artifact_type=artifact.artifact_type,
+        title=artifact.title,
+        content=artifact.content,
+        file_url=artifact.file_url,
+        status=artifact.status,
+        feedback=artifact.feedback,
+        created_at=artifact.created_at.isoformat() if artifact.created_at else None,
+        approved_at=artifact.approved_at.isoformat() if artifact.approved_at else None,
+    )
+
+
+@app.get(
+    "/api/projects/{project_id}/artifacts/pending",
+    response_model=list[ArtifactResponse],
+)
+def list_pending_artifacts(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    if not crud.get_project(db, project_id, current_user.id):
+        raise HTTPException(status_code=404, detail="Проект не найден")
+    rows = crud.get_pending_artifacts(db, project_id, current_user.id)
+    return [artifact_to_response(a, db) for a in rows]
+
+
+@app.get(
+    "/api/projects/{project_id}/artifacts",
+    response_model=list[ArtifactResponse],
+)
+def list_project_artifacts(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    if not crud.get_project(db, project_id, current_user.id):
+        raise HTTPException(status_code=404, detail="Проект не найден")
+    rows = crud.get_project_artifacts(db, project_id, current_user.id)
+    return [artifact_to_response(a, db) for a in rows]
+
+
+@app.post("/api/projects/{project_id}/artifacts/{artifact_id}/approve")
+async def approve_artifact_endpoint(
+    project_id: int,
+    artifact_id: int,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+    _: None = Depends(require_po_role),
+):
+    artifact = crud.get_artifact(db, artifact_id, project_id, current_user.id)
+    if not artifact:
+        raise HTTPException(status_code=404, detail="Артефакт не найден")
+    crud.approve_artifact(db, artifact)
+    background_tasks.add_task(run_artifact_continuation, artifact_id)
+    return {
+        "message": "Артефакт утверждён, запущен следующий этап",
+        "artifact_id": artifact_id,
+    }
+
+
+@app.post("/api/projects/{project_id}/artifacts/{artifact_id}/reject")
+def reject_artifact_endpoint(
+    project_id: int,
+    artifact_id: int,
+    payload: RejectArtifactRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+    _: None = Depends(require_po_role),
+):
+    artifact = crud.get_artifact(db, artifact_id, project_id, current_user.id)
+    if not artifact:
+        raise HTTPException(status_code=404, detail="Артефакт не найден")
+    crud.reject_artifact(db, artifact, payload.feedback)
+    return {"message": "Артефакт отправлен на доработку", "artifact_id": artifact_id}

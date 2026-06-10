@@ -8,6 +8,7 @@ const NAV = [
   { to: 'backlog', label: 'Бэклог' },
   { to: 'sprints', label: 'Спринты' },
   { to: 'approvals', label: 'Согласование' },
+  { to: 'artifacts', label: 'Артефакты', poOnly: true },
 ]
 
 export default function ProjectSidebar({ project }) {
@@ -35,7 +36,7 @@ export default function ProjectSidebar({ project }) {
       </div>
 
       <nav className="flex-1 p-3 flex flex-col gap-1">
-        {NAV.map((item) => (
+        {NAV.filter((item) => !item.poOnly || userRole === 'po').map((item) => (
           <Link
             key={item.to || 'index'}
             to={item.to ? `${base}/${item.to}` : base}

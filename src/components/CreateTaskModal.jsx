@@ -9,6 +9,7 @@ export default function CreateTaskModal({
   agents = [],
   projects = [],
   sprints = [],
+  defaultProjectId = null,
   initialValues = null,
   onClose,
   onSave,
@@ -34,11 +35,17 @@ export default function CreateTaskModal({
         initialValues?.assigneeAgentId || agents[0]?.id || ''
       )
       setProjectId(
-        initialValues?.projectId ? String(initialValues.projectId) : projects[0]?.id ? String(projects[0].id) : ''
+        initialValues?.projectId
+          ? String(initialValues.projectId)
+          : defaultProjectId
+            ? String(defaultProjectId)
+            : projects[0]?.id
+              ? String(projects[0].id)
+              : ''
       )
       setSprintId(initialValues?.sprintId ? String(initialValues.sprintId) : '')
     }
-  }, [open, agents, projects, initialValues])
+  }, [open, agents, projects, defaultProjectId, initialValues])
 
   useEffect(() => {
     if (sprintId && !projectSprints.some((s) => s.id === Number(sprintId))) {
@@ -101,23 +108,25 @@ export default function CreateTaskModal({
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label htmlFor="new-task-project" className="text-sm text-gray-400">Проект</label>
-          <select
-            id="new-task-project"
-            value={projectId}
-            onChange={(e) => {
-              setProjectId(e.target.value)
-              setSprintId('')
-            }}
-            className="px-4 py-3 rounded-xl border border-dark-border bg-dark-card text-sm text-white outline-none focus:border-accent-purple/50"
-          >
-            <option value="">Без проекта</option>
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        </div>
+        {projects.length !== 1 && (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="new-task-project" className="text-sm text-gray-400">Проект</label>
+            <select
+              id="new-task-project"
+              value={projectId}
+              onChange={(e) => {
+                setProjectId(e.target.value)
+                setSprintId('')
+              }}
+              className="px-4 py-3 rounded-xl border border-dark-border bg-dark-card text-sm text-white outline-none focus:border-accent-purple/50"
+            >
+              <option value="">Без проекта</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="flex flex-col gap-2">
           <label htmlFor="new-task-sprint" className="text-sm text-gray-400">Спринт</label>

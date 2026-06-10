@@ -177,8 +177,8 @@ export default function SprintPage() {
     return (
       <div className="flex flex-col flex-1 items-center justify-center gap-4 p-8">
         <p className="text-gray-400">Спринт не найден</p>
-        <Link to={`/projects/${projectId}`} className="text-accent-violet hover:underline text-sm">
-          ← К проекту
+        <Link to={`/projects/${projectId}/sprints`} className="text-accent-violet hover:underline text-sm">
+          ← К спринтам
         </Link>
       </div>
     )
@@ -188,10 +188,10 @@ export default function SprintPage() {
     <div className="flex flex-col flex-1 overflow-hidden">
       <div className="px-8 py-5 border-b border-dark-border">
         <Link
-          to={`/projects/${projectId}`}
+          to={`/projects/${projectId}/sprints`}
           className="text-sm text-gray-500 hover:text-accent-violet mb-3 inline-block"
         >
-          ← {project.name}
+          ← Спринты • {project.name}
         </Link>
         <h1 className="text-xl font-inter-bold text-white">{sprint.name}</h1>
         <p className="text-sm text-gray-500 mt-1">

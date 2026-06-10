@@ -18,9 +18,17 @@ export function formatTime(isoString) {
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
+export function agentSlug(agentId) {
+  const parts = String(agentId).split('_')
+  return parts.length > 1 ? parts[parts.length - 1] : agentId
+}
+
 export function mapAgentFromApi(agent) {
+  const slug = agentSlug(agent.id)
   return {
     id: agent.id,
+    projectId: agent.project_id ?? null,
+    slug,
     name: agent.name,
     role: agent.role,
     roleShort: agent.role,
@@ -28,7 +36,7 @@ export function mapAgentFromApi(agent) {
     avatarUrl: agent.avatar_url || '',
     status: 'В работе',
     online: agent.is_online,
-    avatarColor: AGENT_COLORS[agent.id] || '#7C3AED',
+    avatarColor: AGENT_COLORS[slug] || '#7C3AED',
     lastMessage: '',
     activity: agent.role,
   }

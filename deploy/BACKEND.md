@@ -96,10 +96,20 @@ sudo systemctl status itteam-api
 # Перезапуск API
 sudo systemctl restart itteam-api
 
-# Логи API
-sudo journalctl -u itteam-api -f
+# Логи API (последние 80 строк)
+sudo journalctl -u itteam-api -n 80 --no-pager
+```
 
 ## Обновить код после push в GitHub
+
+**Рекомендуется** — один скрипт (код, pip, права, перезапуск, проверка):
+
+```bash
+cd /opt/itteam-api/repo
+sudo bash deploy/update-api.sh
+```
+
+Или вручную:
 
 ```bash
 cd /opt/itteam-api/repo
@@ -118,8 +128,12 @@ EOF
 # pip только через venv (не системный pip!)
 cd backend
 ./venv/bin/pip install -r requirements.txt
+sudo chown -R www-data:www-data /opt/itteam-api/repo/backend
 
 sudo systemctl restart itteam-api
+sleep 2
+curl -s http://127.0.0.1:8000/api
+curl -s https://api.itteam.tech/api
 sudo systemctl status itteam-api
 ```
 
@@ -133,7 +147,8 @@ sudo systemctl status itteam-api
 |----------|---------|
 | `curl api.itteam.tech` не отвечает | Проверьте A-запись `api` → IP VPS |
 | certbot ошибка | DNS ещё не обновился — подождите |
-| CORS / не подключается | Убедитесь, что `VITE_API_URL` задан и фронт пересобран |
+| Браузер: **CORS** + **502** | Это не CORS: API не запущен. `sudo journalctl -u itteam-api -n 80`, затем `sudo systemctl restart itteam-api` |
+| CORS при рабочем API (200) | Убедитесь, что `VITE_API_URL` задан и фронт пересобран |
 | Порт закрыт | В панели reg.ru откройте порты **80** и **443** |
 
 ---

@@ -7,7 +7,7 @@ def run_add_sprints_migration() -> None:
     """Идемпотентная миграция: таблица sprints и колонка tasks.sprint_id."""
     insp = inspect(engine)
 
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         if "sprints" not in insp.get_table_names():
             conn.execute(
                 text(
@@ -31,9 +31,12 @@ def run_add_sprints_migration() -> None:
             if "description" not in sprint_cols:
                 conn.execute(text("ALTER TABLE sprints ADD COLUMN description TEXT DEFAULT ''"))
             if "created_at" not in sprint_cols:
+                # SQLite: нельзя DEFAULT CURRENT_TIMESTAMP в ALTER TABLE
+                conn.execute(text("ALTER TABLE sprints ADD COLUMN created_at TIMESTAMP"))
                 conn.execute(
                     text(
-                        "ALTER TABLE sprints ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+                        "UPDATE sprints SET created_at = CURRENT_TIMESTAMP "
+                        "WHERE created_at IS NULL"
                     )
                 )
 
@@ -41,5 +44,3 @@ def run_add_sprints_migration() -> None:
             task_cols = {c["name"] for c in insp.get_columns("tasks")}
             if "sprint_id" not in task_cols:
                 conn.execute(text("ALTER TABLE tasks ADD COLUMN sprint_id INTEGER"))
-
-        conn.commit()

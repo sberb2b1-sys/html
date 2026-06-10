@@ -1,8 +1,9 @@
 import AgentCard from './AgentCard'
 import { useStore } from '../store/useStore'
 
-export default function ChatList({ selectedAgentId, onSelectAgent }) {
-  const agents = useStore((s) => s.agents)
+export default function ChatList({ selectedAgentId, onSelectAgent, agents: agentsProp }) {
+  const storeAgents = useStore((s) => s.agents)
+  const agents = agentsProp ?? storeAgents
 
   return (
     <div className="w-[320px] border-r border-dark-border flex flex-col shrink-0 bg-dark-sidebar">

@@ -15,6 +15,7 @@ import crud
 from database import Base, engine, get_db, run_legacy_migrations
 from migrations.add_owner_id import run_migration as run_owner_id_migration
 from migrations.add_sprints import run_add_sprints_migration
+from migrations.project_agents import run_project_agents_migration
 from migrations.sprint2 import run_sprint2_migrations
 from models import Agent, ChatMessage, GeneralMessage, Project, Sprint, Task, User
 from services.llm import (
@@ -173,6 +174,7 @@ class AgentUpdate(BaseModel):
 
 class AgentResponse(BaseModel):
     id: str
+    project_id: Optional[int] = None
     name: str
     role: str
     system_prompt: str
@@ -181,6 +183,19 @@ class AgentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class AgentPromptUpdate(BaseModel):
+    system_prompt: str = Field(min_length=1)
+
+
+class ProjectAgentCreate(BaseModel):
+    slug: str = Field(min_length=1, max_length=40)
+    name: str
+    role: str
+    system_prompt: str = ""
+    avatar_url: str = ""
+    is_online: bool = True
 
 
 class ChatRequest(BaseModel):
@@ -238,9 +253,9 @@ async def lifespan(app: FastAPI):
     run_legacy_migrations()
     run_sprint2_migrations()
     run_add_sprints_migration()
+    run_project_agents_migration()
     db = next(get_db())
     try:
-        crud.seed_agents(db)
         crud.ensure_agent_task_prompts(db)
     finally:
         db.close()
@@ -359,12 +374,21 @@ def general_msg_to_response(message: GeneralMessage, user_name: str) -> GeneralM
 def agent_to_response(agent: Agent) -> AgentResponse:
     return AgentResponse(
         id=agent.id,
+        project_id=agent.project_id,
         name=agent.name,
         role=agent.role,
         system_prompt=agent.system_prompt or "",
         avatar_url=agent.avatar_url or "",
         is_online=agent.is_online,
     )
+
+
+def require_po_role(x_user_role: Optional[str] = Header(None, alias="X-User-Role")) -> None:
+    if x_user_role != "po":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Только PO может изменять настройки агентов",
+        )
 
 
 def ensure_project_belongs_to_user(
@@ -706,7 +730,53 @@ def list_agents(
     db: Session = Depends(get_db),
     current_user: User = Depends(auth.get_current_user),
 ):
-    return [agent_to_response(a) for a in crud.get_agents(db)]
+    return [agent_to_response(a) for a in crud.get_agents(db, current_user.id)]
+
+
+@app.get("/api/projects/{project_id}/agents", response_model=list[AgentResponse])
+def list_project_agents(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    agents = crud.get_agents_by_project(db, project_id, current_user.id)
+    if not crud.get_project(db, project_id, current_user.id):
+        raise HTTPException(status_code=404, detail="Проект не найден")
+    return [agent_to_response(a) for a in agents]
+
+
+@app.post(
+    "/api/projects/{project_id}/agents",
+    response_model=AgentResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_project_agent(
+    project_id: int,
+    payload: ProjectAgentCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+    _: None = Depends(require_po_role),
+):
+    agent = crud.create_agent(db, project_id, current_user.id, payload.model_dump())
+    if not agent:
+        raise HTTPException(status_code=404, detail="Проект не найден или агент уже существует")
+    return agent_to_response(agent)
+
+
+@app.patch("/api/projects/{project_id}/agents/{agent_id}", response_model=AgentResponse)
+def update_project_agent_prompt(
+    project_id: int,
+    agent_id: str,
+    payload: AgentPromptUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+    _: None = Depends(require_po_role),
+):
+    agent = crud.get_project_agent(db, project_id, agent_id, current_user.id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="Агент не найден")
+    updated = crud.update_agent(db, agent, {"system_prompt": payload.system_prompt})
+    return agent_to_response(updated)
 
 
 @app.post("/api/agents", response_model=AgentResponse, status_code=status.HTTP_201_CREATED)
@@ -715,10 +785,10 @@ def create_agent(
     db: Session = Depends(get_db),
     current_user: User = Depends(auth.get_current_user),
 ):
-    if crud.get_agent(db, payload.id):
-        raise HTTPException(status_code=400, detail="Агент с таким ID уже существует")
-    agent = crud.create_agent(db, payload.model_dump())
-    return agent_to_response(agent)
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Создавайте агентов через POST /api/projects/{project_id}/agents",
+    )
 
 
 @app.put("/api/agents/{agent_id}", response_model=AgentResponse)
@@ -762,7 +832,32 @@ def get_chat_history(
     agent = crud.get_agent(db, agent_id)
     if not agent:
         raise HTTPException(status_code=404, detail="Агент не найден")
-    messages = crud.get_chat_history(db, current_user.id, agent_id, limit=limit)
+    project_id = agent.project_id
+    if not project_id:
+        raise HTTPException(status_code=400, detail="Агент не привязан к проекту")
+    messages = crud.get_chat_history(
+        db, current_user.id, project_id, agent_id, limit=limit
+    )
+    return [chat_msg_to_response(m) for m in messages]
+
+
+@app.get(
+    "/api/projects/{project_id}/chats/{agent_id}",
+    response_model=list[ChatMessageResponse],
+)
+def get_project_chat_history(
+    project_id: int,
+    agent_id: str,
+    limit: int = Query(50, ge=1, le=100),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    agent = crud.get_project_agent(db, project_id, agent_id, current_user.id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="Агент не найден")
+    messages = crud.get_chat_history(
+        db, current_user.id, project_id, agent_id, limit=limit
+    )
     return [chat_msg_to_response(m) for m in messages]
 
 
@@ -786,9 +881,13 @@ def send_chat_message(
     if not agent:
         raise HTTPException(status_code=404, detail="Агент не найден")
 
+    project_id = agent.project_id
+    if not project_id:
+        raise HTTPException(status_code=400, detail="Агент не привязан к проекту")
+
     crud.check_and_increment_llm_calls(db, current_user)
 
-    history = crud.get_chat_history(db, current_user.id, agent_id, limit=10)
+    history = crud.get_chat_history(db, current_user.id, project_id, agent_id, limit=10)
     context = [
         {
             "role": "assistant" if m.role == "assistant" else "user",
@@ -810,10 +909,61 @@ def send_chat_message(
         raise HTTPException(status_code=502, detail=str(exc))
 
     user_row = crud.add_chat_message(
-        db, current_user.id, agent_id, "user", payload.message
+        db, current_user.id, project_id, agent_id, "user", payload.message
     )
     agent_row = crud.add_chat_message(
-        db, current_user.id, agent_id, "assistant", reply
+        db, current_user.id, project_id, agent_id, "assistant", reply
+    )
+
+    return ChatExchangeResponse(
+        user_message=chat_msg_to_response(user_row),
+        agent_message=chat_msg_to_response(agent_row),
+    )
+
+
+@app.post(
+    "/api/projects/{project_id}/chats/{agent_id}",
+    response_model=ChatExchangeResponse,
+)
+def send_project_chat_message(
+    project_id: int,
+    agent_id: str,
+    payload: ChatRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    agent = crud.get_project_agent(db, project_id, agent_id, current_user.id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="Агент не найден")
+
+    crud.check_and_increment_llm_calls(db, current_user)
+
+    history = crud.get_chat_history(db, current_user.id, project_id, agent_id, limit=10)
+    context = [
+        {
+            "role": "assistant" if m.role == "assistant" else "user",
+            "content": m.content,
+        }
+        for m in history
+    ]
+    context.append({"role": "user", "content": payload.message})
+
+    try:
+        reply = call_deepseek(context, agent.system_prompt or "")
+    except DeepSeekNotConfigured:
+        raise HTTPException(status_code=503, detail="DeepSeek API не настроен")
+    except DeepSeekRateLimit as exc:
+        raise HTTPException(status_code=429, detail=str(exc))
+    except DeepSeekTimeout as exc:
+        raise HTTPException(status_code=504, detail=str(exc))
+    except DeepSeekAPIError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+    user_row = crud.add_chat_message(
+        db, current_user.id, project_id, agent_id, "user", payload.message
+    )
+    agent_row = crud.add_chat_message(
+        db, current_user.id, project_id, agent_id, "assistant", reply
     )
 
     return ChatExchangeResponse(

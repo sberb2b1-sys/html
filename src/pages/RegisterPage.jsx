@@ -38,7 +38,7 @@ export default function RegisterPage() {
 
     try {
       await register(name.trim(), email.trim(), password)
-      navigate('/dashboard')
+      navigate('/holdings')
     } catch (error) {
       setError(error.message || 'Не удалось зарегистрироваться')
     }

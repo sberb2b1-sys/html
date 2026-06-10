@@ -8,7 +8,12 @@ import {
   resolveAgentIdFromHint,
 } from '../utils/extractTaskFromMessage'
 
-export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdProp }) {
+export default function ChatWindow({
+  onSend,
+  selectedAgentId: selectedAgentIdProp,
+  projectId,
+  agents: agentsProp,
+}) {
   const [input, setInput] = useState('')
   const [editingId, setEditingId] = useState(null)
   const [editText, setEditText] = useState('')
@@ -18,7 +23,8 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
   const [taskModalOpen, setTaskModalOpen] = useState(false)
   const [taskInitialValues, setTaskInitialValues] = useState(null)
 
-  const agents = useStore((s) => s.agents)
+  const storeAgents = useStore((s) => s.agents)
+  const agents = agentsProp ?? storeAgents
   const createTaskFromAgent = useStore((s) => s.createTaskFromAgent)
   const chatMessages = useStore((s) => s.chatMessages)
   const isAgentTyping = useStore((s) => s.isAgentTyping)
@@ -86,6 +92,7 @@ export default function ChatWindow({ onSend, selectedAgentId: selectedAgentIdPro
       title: extracted?.title || msg.text.slice(0, 120).trim() || 'Новая задача',
       description: extracted?.description || msg.text,
       assigneeAgentId: assigneeFromHint || selectedAgentId || '',
+      projectId: projectId || '',
       priority: 'Medium',
     })
     setTaskModalOpen(true)

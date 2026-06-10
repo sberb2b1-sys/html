@@ -36,6 +36,7 @@ class Project(Base):
     tasks = relationship("Task", back_populates="project", cascade="all, delete-orphan")
     sprints = relationship("Sprint", back_populates="project", cascade="all, delete-orphan")
     general_messages = relationship("GeneralMessage", back_populates="project", cascade="all, delete-orphan")
+    agents = relationship("Agent", back_populates="project", cascade="all, delete-orphan")
 
 
 class Sprint(Base):
@@ -58,12 +59,14 @@ class Agent(Base):
     __tablename__ = "agents"
 
     id = Column(String(50), primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True, index=True)
     name = Column(String(255), nullable=False)
     role = Column(String(255), nullable=False)
     system_prompt = Column(Text, default="")
     avatar_url = Column(String(500), default="")
     is_online = Column(Boolean, default=True, nullable=False)
 
+    project = relationship("Project", back_populates="agents")
     tasks = relationship("Task", back_populates="assignee_agent")
     chat_messages = relationship("ChatMessage", back_populates="agent")
     general_messages = relationship("GeneralMessage", back_populates="agent")
@@ -93,6 +96,7 @@ class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
     id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     agent_id = Column(String(50), ForeignKey("agents.id"), nullable=False, index=True)
     role = Column(String(20), nullable=False)

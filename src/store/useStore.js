@@ -1,6 +1,14 @@
 import { create } from 'zustand'
 import toast from 'react-hot-toast'
-import { auth, projects, tasks, agents, chat, sprints as sprintsApi } from '../api/client'
+import {
+  auth,
+  projects,
+  tasks,
+  agents,
+  projectAgents as projectAgentsApi,
+  chat,
+  sprints as sprintsApi,
+} from '../api/client'
 import {
   mapAgentFromApi,
   mapAgentToApi,
@@ -19,14 +27,11 @@ import {
 import { notifyApiError, notifyApiErrorPlain } from '../utils/apiError'
 import { safeLog } from '../utils/mask'
 import { extractTaskFromMessage } from '../utils/extractTaskFromMessage'
-import { agents as fallbackAgents } from '../mocks/agents'
-
-const clone = (data) => JSON.parse(JSON.stringify(data))
-
 const getEmptyState = () => ({
   projects: [],
   tasks: [],
-  agents: clone(fallbackAgents),
+  agents: [],
+  projectAgents: {},
   currentUser: null,
   selectedAgentId: null,
   chatMessages: {},
@@ -40,22 +45,16 @@ const getEmptyState = () => ({
   activeGeneralProjectId: null,
 })
 
-async function fetchLists(get) {
-  const [rawProjects, rawTasks, rawAgents] = await Promise.all([
+async function fetchLists() {
+  const [rawProjects, rawTasks] = await Promise.all([
     projects.getAll(),
     tasks.getAll(),
-    agents.getAll(),
   ])
 
-  const mappedAgents = rawAgents.map(mapAgentFromApi)
-  const mappedTasks = rawTasks.map((t) =>
-    mapTaskFromApi(t, mappedAgents, rawProjects)
-  )
-  const mappedProjects = rawProjects.map((p) =>
-    mapProjectFromApi(p, rawTasks)
-  )
+  const mappedTasks = rawTasks.map((t) => mapTaskFromApi(t, [], rawProjects))
+  const mappedProjects = rawProjects.map((p) => mapProjectFromApi(p, rawTasks))
 
-  return { projects: mappedProjects, tasks: mappedTasks, agents: mappedAgents }
+  return { projects: mappedProjects, tasks: mappedTasks, agents: [], projectAgents: {} }
 }
 
 export const useStore = create((set, get) => ({
@@ -85,7 +84,7 @@ export const useStore = create((set, get) => ({
 
   loadAllData: async () => {
     try {
-      const data = await fetchLists(get)
+      const data = await fetchLists()
       set({ ...data, isHydrated: true })
     } catch (error) {
       toast.error(`Ошибка: ${error.message || 'не удалось загрузить данные'}`)
@@ -200,10 +199,10 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  loadChatMessages: async (agentId) => {
-    if (!agentId) return
+  loadChatMessages: async (projectId, agentId) => {
+    if (!agentId || !projectId) return
     try {
-      const records = await chat.getMessages(agentId)
+      const records = await chat.getProjectHistory(projectId, agentId)
       set((state) => ({
         chatMessages: {
           ...state.chatMessages,
@@ -212,6 +211,36 @@ export const useStore = create((set, get) => ({
       }))
     } catch (error) {
       toast.error(error.message || 'Не удалось загрузить историю чата')
+    }
+  },
+
+  loadProjectAgents: async (projectId) => {
+    if (!projectId) return []
+    try {
+      const raw = await projectAgentsApi.getAll(projectId)
+      const mapped = raw.map(mapAgentFromApi)
+      set((state) => ({
+        projectAgents: { ...state.projectAgents, [projectId]: mapped },
+        agents: mapped,
+      }))
+      return mapped
+    } catch (error) {
+      toast.error(error.message || 'Не удалось загрузить агентов проекта')
+      return []
+    }
+  },
+
+  getProjectAgents: (projectId) => get().projectAgents[projectId] || [],
+
+  updateProjectAgentPrompt: async (projectId, agentId, systemPrompt) => {
+    try {
+      await projectAgentsApi.updatePrompt(projectId, agentId, systemPrompt)
+      await get().loadProjectAgents(projectId)
+      toast.success('Промт агента сохранён')
+      return true
+    } catch (error) {
+      toast.error(error.message || 'Не удалось сохранить промт')
+      return false
     }
   },
 
@@ -415,7 +444,9 @@ export const useStore = create((set, get) => ({
     try {
       const rawTasks = await tasks.getAll(projectId)
       const rawProjects = await projects.getAll()
-      const mappedAgents = get().agents
+      const mappedAgents = projectId
+        ? get().getProjectAgents(projectId)
+        : get().agents
       set({
         tasks: rawTasks.map((t) =>
           mapTaskFromApi(t, mappedAgents, rawProjects)
@@ -502,9 +533,9 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  sendMessageToAgent: async (message, agentId) => {
+  sendMessageToAgent: async (message, agentId, projectId) => {
     const text = message.trim()
-    if (!text || !agentId) {
+    if (!text || !agentId || !projectId) {
       toast.error('Ошибка: введите сообщение')
       return
     }
@@ -528,7 +559,7 @@ export const useStore = create((set, get) => ({
     }))
 
     try {
-      const response = await chat.send(agentId, text)
+      const response = await chat.sendProject(projectId, agentId, text)
       const { userMessage: savedUser, agentMessage } = mapChatExchange(response)
 
       set((state) => {

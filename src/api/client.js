@@ -189,14 +189,39 @@ export const agents = {
     }),
 }
 
+export const projectAgents = {
+  getAll: (projectId) => apiRequest(`/projects/${projectId}/agents`),
+  create: (projectId, data) =>
+    apiRequest(`/projects/${projectId}/agents`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'X-User-Role': 'po' },
+    }),
+  updatePrompt: (projectId, agentId, systemPrompt) =>
+    apiRequest(`/projects/${projectId}/agents/${agentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ system_prompt: systemPrompt }),
+      headers: { 'X-User-Role': 'po' },
+    }),
+}
+
 export const chat = {
   getHistory: (agentId, limit = 50) =>
     apiRequest(`/chat/history/${agentId}?limit=${limit}`),
 
   getMessages: (agentId) => apiRequest(`/chat/history/${agentId}?limit=50`),
 
+  getProjectHistory: (projectId, agentId, limit = 50) =>
+    apiRequest(`/projects/${projectId}/chats/${agentId}?limit=${limit}`),
+
   send: (agentId, message) =>
     apiRequest(`/chat/${agentId}`, {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    }),
+
+  sendProject: (projectId, agentId, message) =>
+    apiRequest(`/projects/${projectId}/chats/${agentId}`, {
       method: 'POST',
       body: JSON.stringify({ message }),
     }),

@@ -29,7 +29,7 @@ export default function SidebarPanel({ onNavigate }) {
   }
 
   const handleLogoClick = () => {
-    navigate('/dashboard')
+    navigate('/holdings')
     onNavigate?.()
   }
 

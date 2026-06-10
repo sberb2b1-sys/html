@@ -1,21 +1,20 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import AppLayout from './layouts/AppLayout'
 import ProtectedRoute from './components/ProtectedRoute'
+import ProjectLayout from './layouts/ProjectLayout'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import DashboardPage from './pages/DashboardPage'
-import ProjectsPage from './pages/ProjectsPage'
-import ProjectPage from './pages/ProjectPage'
-import SprintPage from './pages/SprintPage'
+import HoldingsPage from './pages/HoldingsPage'
+import ProjectDashboard from './pages/ProjectDashboard'
 import TeamPage from './pages/TeamPage'
 import ChatsPage from './pages/ChatsPage'
-import GeneralChatPage from './pages/GeneralChatPage'
-import StatsPage from './pages/StatsPage'
 import BacklogPage from './pages/BacklogPage'
-import AdminAgentsPage from './pages/AdminAgentsPage'
+import SprintsPage from './pages/SprintsPage'
+import SprintPage from './pages/SprintPage'
+import ApprovalsPage from './pages/ApprovalsPage'
+import AgentSettingsPage from './pages/AgentSettingsPage'
 import DemoPage from './pages/DemoPage'
 import PrivacyPage from './pages/PrivacyPage'
 import { useStore } from './store/useStore'
@@ -66,21 +65,32 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
+
           <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/projects" element={<ProjectsPage />} />
-              <Route path="/projects/:projectId" element={<ProjectPage />} />
-              <Route path="/projects/:projectId/sprints/:sprintId" element={<SprintPage />} />
-              <Route path="/team" element={<TeamPage />} />
-              <Route path="/chats" element={<ChatsPage />} />
-              <Route path="/general-chat" element={<GeneralChatPage />} />
-              <Route path="/stats" element={<StatsPage />} />
-              <Route path="/backlog" element={<BacklogPage />} />
-              <Route path="/admin/agents" element={<AdminAgentsPage />} />
-              <Route path="/demo" element={<DemoPage />} />
+            <Route path="/holdings" element={<HoldingsPage />} />
+            <Route path="/demo" element={<DemoPage />} />
+
+            <Route path="/projects/:projectId" element={<ProjectLayout />}>
+              <Route index element={<ProjectDashboard />} />
+              <Route path="team" element={<TeamPage />} />
+              <Route path="chats" element={<ChatsPage />} />
+              <Route path="backlog" element={<BacklogPage />} />
+              <Route path="sprints" element={<SprintsPage />} />
+              <Route path="sprints/:sprintId" element={<SprintPage />} />
+              <Route path="approvals" element={<ApprovalsPage />} />
+              <Route path="agents" element={<AgentSettingsPage />} />
             </Route>
+
+            <Route path="/dashboard" element={<Navigate to="/holdings" replace />} />
+            <Route path="/projects" element={<Navigate to="/holdings" replace />} />
+            <Route path="/team" element={<Navigate to="/holdings" replace />} />
+            <Route path="/chats" element={<Navigate to="/holdings" replace />} />
+            <Route path="/backlog" element={<Navigate to="/holdings" replace />} />
+            <Route path="/general-chat" element={<Navigate to="/holdings" replace />} />
+            <Route path="/stats" element={<Navigate to="/holdings" replace />} />
+            <Route path="/admin/agents" element={<Navigate to="/holdings" replace />} />
           </Route>
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthBootstrap>

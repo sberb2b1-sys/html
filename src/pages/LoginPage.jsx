@@ -39,7 +39,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password)
-      navigate('/dashboard')
+      navigate('/holdings')
     } catch (err) {
       setError(err.message || 'Неверный email или пароль')
     }

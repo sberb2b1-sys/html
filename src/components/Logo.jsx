@@ -20,7 +20,7 @@ export default function Logo({ className = '', showText = true, onClick }) {
   }
 
   return (
-    <Link to="/dashboard" className={`flex items-center gap-2.5 ${className}`}>
+    <Link to="/holdings" className={`flex items-center gap-2.5 ${className}`}>
       {content}
     </Link>
   )

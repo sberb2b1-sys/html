@@ -72,12 +72,33 @@ DEFAULT_AGENTS = [
 ]
 
 
-def seed_agents(db: Session) -> None:
-    if db.query(Agent).count() > 0:
-        return
-    for agent_data in DEFAULT_AGENTS:
-        db.add(Agent(**agent_data))
+def make_agent_id(project_id: int, slug: str) -> str:
+    return f"{project_id}_{slug}"
+
+
+def seed_agents_for_project(db: Session, project_id: int) -> None:
+    for template in DEFAULT_AGENTS:
+        agent_id = make_agent_id(project_id, template["id"])
+        if db.query(Agent).filter(Agent.id == agent_id).first():
+            continue
+        db.add(
+            Agent(
+                id=agent_id,
+                project_id=project_id,
+                name=template["name"],
+                role=template["role"],
+                system_prompt=template["system_prompt"],
+                is_online=template.get("is_online", True),
+            )
+        )
     db.commit()
+
+
+def seed_agents(db: Session) -> None:
+    """Устарело: агенты создаются при создании проекта."""
+    projects = db.query(Project).all()
+    for project in projects:
+        seed_agents_for_project(db, project.id)
 
 
 def ensure_agent_task_prompts(db: Session) -> None:
@@ -155,7 +176,8 @@ def create_project(db: Session, owner_id: int, data: dict) -> Project:
     safe_data = {k: v for k, v in data.items() if k != "owner_id"}
     project = Project(owner_id=owner_id, **safe_data)
     db.add(project)
-    db.commit()
+    db.flush()
+    seed_agents_for_project(db, project.id)
     db.refresh(project)
     return project
 
@@ -281,16 +303,58 @@ def assign_task_sprint(
 
 
 # Agents
-def get_agents(db: Session) -> list[Agent]:
-    return db.query(Agent).order_by(Agent.name).all()
+def get_agents(db: Session, owner_id: int | None = None) -> list[Agent]:
+    query = db.query(Agent)
+    if owner_id is not None:
+        query = query.join(Project).filter(Project.owner_id == owner_id)
+    return query.order_by(Agent.name).all()
+
+
+def get_agents_by_project(
+    db: Session, project_id: int, owner_id: int
+) -> list[Agent]:
+    if not get_project(db, project_id, owner_id):
+        return []
+    return (
+        db.query(Agent)
+        .filter(Agent.project_id == project_id)
+        .order_by(Agent.name)
+        .all()
+    )
 
 
 def get_agent(db: Session, agent_id: str) -> Agent | None:
     return db.query(Agent).filter(Agent.id == agent_id).first()
 
 
-def create_agent(db: Session, data: dict) -> Agent:
-    agent = Agent(**data)
+def get_project_agent(
+    db: Session, project_id: int, agent_id: str, owner_id: int
+) -> Agent | None:
+    if not get_project(db, project_id, owner_id):
+        return None
+    return (
+        db.query(Agent)
+        .filter(Agent.id == agent_id, Agent.project_id == project_id)
+        .first()
+    )
+
+
+def create_agent(db: Session, project_id: int, owner_id: int, data: dict) -> Agent | None:
+    if not get_project(db, project_id, owner_id):
+        return None
+    slug = data.get("slug") or data.get("id", "")
+    agent_id = data.get("id") or make_agent_id(project_id, slug)
+    if db.query(Agent).filter(Agent.id == agent_id).first():
+        return None
+    agent = Agent(
+        id=agent_id,
+        project_id=project_id,
+        name=data["name"],
+        role=data["role"],
+        system_prompt=data.get("system_prompt", ""),
+        avatar_url=data.get("avatar_url", ""),
+        is_online=data.get("is_online", True),
+    )
     db.add(agent)
     db.commit()
     db.refresh(agent)
@@ -316,9 +380,15 @@ def delete_agent(db: Session, agent: Agent) -> None:
 
 # Chat (role/content rows)
 def add_chat_message(
-    db: Session, user_id: int, agent_id: str, role: str, content: str
+    db: Session,
+    user_id: int,
+    project_id: int,
+    agent_id: str,
+    role: str,
+    content: str,
 ) -> ChatMessage:
     message = ChatMessage(
+        project_id=project_id,
         user_id=user_id,
         agent_id=agent_id,
         role=role,
@@ -331,11 +401,19 @@ def add_chat_message(
 
 
 def get_chat_history(
-    db: Session, user_id: int, agent_id: str, limit: int = 50
+    db: Session,
+    user_id: int,
+    project_id: int,
+    agent_id: str,
+    limit: int = 50,
 ) -> list[ChatMessage]:
     return (
         db.query(ChatMessage)
-        .filter(ChatMessage.user_id == user_id, ChatMessage.agent_id == agent_id)
+        .filter(
+            ChatMessage.user_id == user_id,
+            ChatMessage.project_id == project_id,
+            ChatMessage.agent_id == agent_id,
+        )
         .order_by(ChatMessage.created_at.desc())
         .limit(limit)
         .all()[::-1]

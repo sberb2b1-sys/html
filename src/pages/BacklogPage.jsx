@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useOutletContext } from 'react-router-dom'
 import {
   DndContext,
   DragOverlay,
@@ -13,7 +14,6 @@ import {
   arrayMove,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import Header from '../components/Header'
 import TaskCard, { TaskCardOverlay } from '../components/TaskCard'
 import EditTaskModal from '../components/EditTaskModal'
 import CreateTaskModal from '../components/CreateTaskModal'
@@ -64,14 +64,22 @@ function KanbanColumn({ column, tasks, agents, sprints, onEdit, onDelete, onAssi
 }
 
 export default function BacklogPage() {
+  const { projectId, project } = useOutletContext()
   const tasks = useStore((s) => s.tasks)
-  const agents = useStore((s) => s.agents)
-  const projects = useStore((s) => s.projects)
   const sprints = useStore((s) => s.sprints)
+  const getProjectAgents = useStore((s) => s.getProjectAgents)
   const loadTasks = useStore((s) => s.loadTasks)
-  const loadAgents = useStore((s) => s.loadAgents)
-  const loadProjects = useStore((s) => s.loadProjects)
-  const loadAllSprints = useStore((s) => s.loadAllSprints)
+  const loadProjectAgents = useStore((s) => s.loadProjectAgents)
+  const loadSprints = useStore((s) => s.loadSprints)
+  const agents = getProjectAgents(projectId)
+  const projectSprints = useMemo(
+    () => sprints.filter((s) => s.projectId === projectId),
+    [sprints, projectId]
+  )
+  const projectTasks = useMemo(
+    () => tasks.filter((t) => t.projectId === projectId),
+    [tasks, projectId]
+  )
   const assignTaskSprint = useStore((s) => s.assignTaskSprint)
   const updateTaskStatus = useStore((s) => s.updateTaskStatus)
   const reorderColumn = useStore((s) => s.reorderColumn)
@@ -80,16 +88,10 @@ export default function BacklogPage() {
   const deleteTask = useStore((s) => s.deleteTask)
 
   useEffect(() => {
-    loadTasks()
-    loadAgents()
-    loadProjects()
-  }, [loadTasks, loadAgents, loadProjects])
-
-  useEffect(() => {
-    if (projects.length > 0) {
-      loadAllSprints()
-    }
-  }, [projects, loadAllSprints])
+    loadTasks(projectId)
+    loadProjectAgents(projectId)
+    loadSprints(projectId)
+  }, [projectId, loadTasks, loadProjectAgents, loadSprints])
 
   const [editingTask, setEditingTask] = useState(null)
   const [createOpen, setCreateOpen] = useState(false)
@@ -98,11 +100,13 @@ export default function BacklogPage() {
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   const filteredTasks = useMemo(() => {
-    if (!agentFilter) return tasks
-    return tasks.filter(
-      (t) => t.assigneeAgentId === agentFilter || t.assignee === agents.find((a) => a.id === agentFilter)?.name
+    if (!agentFilter) return projectTasks
+    return projectTasks.filter(
+      (t) =>
+        t.assigneeAgentId === agentFilter ||
+        t.assignee === agents.find((a) => a.id === agentFilter)?.name
     )
-  }, [tasks, agentFilter, agents])
+  }, [projectTasks, agentFilter, agents])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
@@ -118,7 +122,7 @@ export default function BacklogPage() {
     if (!over || active.id === over.id) return
 
     const activeId = active.id
-    const activeItem = tasks.find((t) => t.id === activeId)
+    const activeItem = projectTasks.find((t) => t.id === activeId)
     if (!activeItem) return
 
     const columnIds = COLUMNS.map((c) => c.id)
@@ -130,11 +134,11 @@ export default function BacklogPage() {
       return
     }
 
-    const overItem = tasks.find((t) => t.id === over.id)
+    const overItem = projectTasks.find((t) => t.id === over.id)
     if (!overItem) return
 
     if (activeItem.status === overItem.status) {
-      const columnTasks = tasks.filter((t) => t.status === activeItem.status)
+      const columnTasks = projectTasks.filter((t) => t.status === activeItem.status)
       const oldIndex = columnTasks.findIndex((t) => t.id === activeId)
       const newIndex = columnTasks.findIndex((t) => t.id === over.id)
       if (oldIndex !== newIndex) {
@@ -147,7 +151,7 @@ export default function BacklogPage() {
   }
 
   const handleCreateTask = async (data) => {
-    const ok = await createTask(data)
+    const ok = await createTask({ ...data, projectId: data.projectId || projectId })
     if (ok) {
       setCreateOpen(false)
     }
@@ -162,12 +166,15 @@ export default function BacklogPage() {
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
-      <Header
-        title="Бэклог задач"
-        subtitle="Все задачи по проектам"
-        actionLabel="Новая задача"
-        onAction={() => setCreateOpen(true)}
-      />
+      <div className="px-8 py-5 border-b border-dark-border flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-inter-bold text-white">Бэклог</h1>
+          <p className="text-sm text-gray-500 mt-1">{project?.name}</p>
+        </div>
+        <button type="button" className="btn-primary" onClick={() => setCreateOpen(true)}>
+          Новая задача
+        </button>
+      </div>
 
       <div className="px-8 py-4 border-b border-dark-border flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2">
@@ -211,7 +218,7 @@ export default function BacklogPage() {
                   column={column}
                   tasks={columnTasks}
                   agents={agents}
-                  sprints={sprints}
+                  sprints={projectSprints}
                   onEdit={setEditingTask}
                   onDelete={setDeleteTarget}
                   onAssignSprint={assignTaskSprint}
@@ -229,8 +236,9 @@ export default function BacklogPage() {
       <CreateTaskModal
         open={createOpen}
         agents={agents}
-        projects={projects}
-        sprints={sprints}
+        projects={project ? [project] : []}
+        sprints={projectSprints}
+        defaultProjectId={projectId}
         onClose={() => setCreateOpen(false)}
         onSave={handleCreateTask}
       />
@@ -239,7 +247,7 @@ export default function BacklogPage() {
         open={!!editingTask}
         task={editingTask}
         agents={agents}
-        sprints={sprints}
+        sprints={projectSprints}
         onClose={() => setEditingTask(null)}
         onSave={async (updates) => {
           if (editingTask) {

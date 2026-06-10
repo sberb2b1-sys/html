@@ -243,3 +243,32 @@ export const chat = {
       body: JSON.stringify(data),
     }),
 }
+
+export const analysis = {
+  run: (projectId, idea) =>
+    apiRequest(`/projects/${projectId}/analyze`, {
+      method: 'POST',
+      body: JSON.stringify({ idea }),
+      headers: { 'X-User-Role': 'po' },
+    }),
+  getHistory: (projectId) =>
+    apiRequest(`/projects/${projectId}/analysis-history`),
+}
+
+export const approvals = {
+  getAll: (projectId, pendingOnly = true) =>
+    apiRequest(
+      `/projects/${projectId}/approvals?pending_only=${pendingOnly ? 'true' : 'false'}`
+    ),
+  approve: (projectId, taskId) =>
+    apiRequest(`/projects/${projectId}/approvals/${taskId}/approve`, {
+      method: 'POST',
+      headers: { 'X-User-Role': 'po' },
+    }),
+  reject: (projectId, taskId, reason) =>
+    apiRequest(`/projects/${projectId}/approvals/${taskId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+      headers: { 'X-User-Role': 'po' },
+    }),
+}

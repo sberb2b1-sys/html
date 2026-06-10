@@ -77,7 +77,10 @@ export default function BacklogPage() {
     [sprints, projectId]
   )
   const projectTasks = useMemo(
-    () => tasks.filter((t) => t.projectId === projectId),
+    () =>
+      tasks.filter(
+        (t) => t.projectId === projectId && t.status !== 'pending_approval' && t.status !== 'rejected'
+      ),
     [tasks, projectId]
   )
   const assignTaskSprint = useStore((s) => s.assignTaskSprint)

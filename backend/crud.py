@@ -3,7 +3,18 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 
-from models import Agent, ChatMessage, GeneralMessage, Project, Sprint, Task, User
+from models import (
+    Agent,
+    AnalysisProposal,
+    AnalysisReport,
+    ChatMessage,
+    GeneralMessage,
+    Project,
+    Sprint,
+    Task,
+    TaskApproval,
+    User,
+)
 
 TASK_CREATION_PROMPT = (
     " Если пользователь просит что-то сделать, что требует работы другого агента — "
@@ -71,13 +82,72 @@ DEFAULT_AGENTS = [
     },
 ]
 
+COUNCIL_ANALYSTS = [
+    {
+        "id": "ba_cons",
+        "name": "Бизнес-аналитик Алексей (Консерватор)",
+        "role": "Бизнес-аналитик",
+        "style": "conservative",
+        "system_prompt": """Ты — консервативный бизнес-аналитик. Твои принципы:
+- Используй проверенные, надёжные решения
+- Избегай рисков и новых технологий
+- Отдавай предпочтение стандартным подходам (REST, SQL, JWT)
+- Твой девиз: «Работает — не трогай»
+
+Твоя задача: предложить стабильное, предсказуемое решение.
+Не задавай вопросов, просто предложи решение.""",
+        "is_online": True,
+    },
+    {
+        "id": "ba_innov",
+        "name": "Бизнес-аналитик Мария (Инноватор)",
+        "role": "Бизнес-аналитик",
+        "style": "innovative",
+        "system_prompt": """Ты — инновационный бизнес-аналитик. Твои принципы:
+- Используй новейшие технологии и подходы
+- Готов рисковать ради преимущества
+- Предлагай GraphQL, gRPC, AI-first, Serverless
+- Твой девиз: «Будущее уже наступило»
+
+Твоя задача: предложить передовое, технологичное решение.
+Не задавай вопросов, просто предложи решение.""",
+        "is_online": True,
+    },
+    {
+        "id": "ba_prag",
+        "name": "Бизнес-аналитик Елена (Прагматик)",
+        "role": "Бизнес-аналитик",
+        "style": "pragmatic",
+        "system_prompt": """Ты — прагматичный бизнес-аналитик. Твои принципы:
+- Ищи баланс между скоростью, стоимостью и качеством
+- Оценивай время и ресурсы реально
+- Предлагай золотую середину
+- Твой девиз: «Лучшее — враг хорошего»
+
+Твоя задача: предложить оптимальное решение по соотношению цена/качество.
+Не задавай вопросов, просто предложи решение.""",
+        "is_online": True,
+    },
+]
+
+COUNCIL_EXTRA_AGENTS = [
+    {
+        "id": "qa",
+        "name": "Тестировщик",
+        "role": "Тестировщик",
+        "system_prompt": "Ты QA-инженер IT-команды. Составляй тест-планы и сценарии проверки."
+        + TASK_CREATION_PROMPT,
+        "is_online": True,
+    },
+]
+
 
 def make_agent_id(project_id: int, slug: str) -> str:
     return f"{project_id}_{slug}"
 
 
 def seed_agents_for_project(db: Session, project_id: int) -> None:
-    for template in DEFAULT_AGENTS:
+    for template in DEFAULT_AGENTS + COUNCIL_EXTRA_AGENTS:
         agent_id = make_agent_id(project_id, template["id"])
         if db.query(Agent).filter(Agent.id == agent_id).first():
             continue
@@ -91,7 +161,25 @@ def seed_agents_for_project(db: Session, project_id: int) -> None:
                 is_online=template.get("is_online", True),
             )
         )
+    seed_council_analysts_for_project(db, project_id)
     db.commit()
+
+
+def seed_council_analysts_for_project(db: Session, project_id: int) -> None:
+    for template in COUNCIL_ANALYSTS:
+        agent_id = make_agent_id(project_id, template["id"])
+        if db.query(Agent).filter(Agent.id == agent_id).first():
+            continue
+        db.add(
+            Agent(
+                id=agent_id,
+                project_id=project_id,
+                name=template["name"],
+                role=template["role"],
+                system_prompt=template["system_prompt"],
+                is_online=template.get("is_online", True),
+            )
+        )
 
 
 def seed_agents(db: Session) -> None:
@@ -518,3 +606,134 @@ def delete_general_message(db: Session, message_id: int, user_id: int) -> bool:
     db.delete(message)
     db.commit()
     return True
+
+
+# Analysis council & approvals
+def get_council_analysts(db: Session, project_id: int) -> list[Agent]:
+    return (
+        db.query(Agent)
+        .filter(Agent.project_id == project_id, Agent.role == "Бизнес-аналитик")
+        .order_by(Agent.name)
+        .all()
+    )
+
+
+def ensure_council_analysts(db: Session, project_id: int) -> list[Agent]:
+    analysts = get_council_analysts(db, project_id)
+    if len(analysts) < 3:
+        seed_council_analysts_for_project(db, project_id)
+        db.commit()
+        analysts = get_council_analysts(db, project_id)
+    return analysts[:3]
+
+
+def create_analysis_report(
+    db: Session,
+    project_id: int,
+    user_idea: str,
+    winner_analyst: str,
+    winner_proposal: str,
+    report: str,
+    task_id: int | None = None,
+) -> AnalysisReport:
+    row = AnalysisReport(
+        project_id=project_id,
+        task_id=task_id,
+        user_idea=user_idea,
+        winner_analyst=winner_analyst,
+        winner_proposal=winner_proposal,
+        report=report,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return row
+
+
+def save_analysis_proposals(
+    db: Session, report_id: int, proposals: list[dict]
+) -> None:
+    for item in proposals:
+        db.add(
+            AnalysisProposal(
+                report_id=report_id,
+                analyst_name=item["analyst_name"],
+                analyst_style=item.get("style", ""),
+                proposal=item["proposal"],
+                votes=item.get("votes", 0),
+            )
+        )
+    db.commit()
+
+
+def get_analysis_history(db: Session, project_id: int, owner_id: int) -> list[AnalysisReport]:
+    if not get_project(db, project_id, owner_id):
+        return []
+    return (
+        db.query(AnalysisReport)
+        .filter(AnalysisReport.project_id == project_id)
+        .order_by(AnalysisReport.created_at.desc())
+        .all()
+    )
+
+
+def create_task_approval(
+    db: Session, project_id: int, task_id: int, report_id: int
+) -> TaskApproval:
+    approval = TaskApproval(
+        project_id=project_id,
+        task_id=task_id,
+        report_id=report_id,
+        status="pending",
+    )
+    db.add(approval)
+    db.commit()
+    db.refresh(approval)
+    return approval
+
+
+def get_all_approvals(
+    db: Session, project_id: int, owner_id: int, pending_only: bool = False
+) -> list[TaskApproval]:
+    if not get_project(db, project_id, owner_id):
+        return []
+    query = db.query(TaskApproval).filter(TaskApproval.project_id == project_id)
+    if pending_only:
+        query = query.filter(TaskApproval.status == "pending")
+    return query.order_by(TaskApproval.created_at.desc()).all()
+
+
+def get_task_approval(
+    db: Session, project_id: int, task_id: int, owner_id: int
+) -> TaskApproval | None:
+    if not get_project(db, project_id, owner_id):
+        return None
+    return (
+        db.query(TaskApproval)
+        .filter(
+            TaskApproval.project_id == project_id,
+            TaskApproval.task_id == task_id,
+        )
+        .first()
+    )
+
+
+def approve_task(db: Session, approval: TaskApproval, task: Task) -> Task:
+    approval.status = "approved"
+    task.status = "todo"
+    db.commit()
+    db.refresh(approval)
+    db.refresh(task)
+    return task
+
+
+def reject_task(
+    db: Session, approval: TaskApproval, task: Task, reason: str
+) -> Task:
+    approval.status = "rejected"
+    approval.rejection_reason = reason or "Требуются доработки"
+    task.status = "rejected"
+    db.commit()
+    db.refresh(approval)
+    db.refresh(task)
+    return task

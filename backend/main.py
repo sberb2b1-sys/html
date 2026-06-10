@@ -15,9 +15,21 @@ import crud
 from database import Base, engine, get_db, run_legacy_migrations
 from migrations.add_owner_id import run_migration as run_owner_id_migration
 from migrations.add_sprints import run_add_sprints_migration
+from migrations.analysis_council import run_analysis_council_migration
 from migrations.project_agents import run_project_agents_migration
 from migrations.sprint2 import run_sprint2_migrations
-from models import Agent, ChatMessage, GeneralMessage, Project, Sprint, Task, User
+from models import (
+    Agent,
+    AnalysisReport,
+    ChatMessage,
+    GeneralMessage,
+    Project,
+    Sprint,
+    Task,
+    TaskApproval,
+    User,
+)
+from services.orchestrator import AgentOrchestrator
 from services.llm import (
     DeepSeekAPIError,
     DeepSeekNotConfigured,
@@ -241,6 +253,57 @@ class GeneralMessageResponse(BaseModel):
         from_attributes = True
 
 
+class AnalyzeIdeaRequest(BaseModel):
+    idea: str = Field(min_length=3)
+
+
+class AnalyzeIdeaResponse(BaseModel):
+    task_id: int
+    report_id: int
+    winner: str
+    report: str
+    message: str
+
+
+class AnalysisReportResponse(BaseModel):
+    id: int
+    project_id: int
+    task_id: Optional[int] = None
+    user_idea: str
+    winner_analyst: str
+    winner_proposal: str
+    report: str
+    created_at: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ApprovalTaskResponse(BaseModel):
+    id: int
+    title: str
+    description: str
+    status: str
+    priority: str
+    assignee_agent_id: Optional[str] = None
+
+
+class ApprovalResponse(BaseModel):
+    id: int
+    project_id: int
+    task_id: int
+    report_id: Optional[int] = None
+    status: str
+    rejection_reason: str
+    created_at: Optional[str] = None
+    task: ApprovalTaskResponse
+    report: Optional[str] = None
+
+
+class RejectApprovalRequest(BaseModel):
+    reason: str = Field(default="Требуются доработки", min_length=1)
+
+
 # ---------------------------------------------------------------------------
 # App
 # ---------------------------------------------------------------------------
@@ -254,6 +317,7 @@ async def lifespan(app: FastAPI):
     run_sprint2_migrations()
     run_add_sprints_migration()
     run_project_agents_migration()
+    run_analysis_council_migration()
     db = next(get_db())
     try:
         crud.ensure_agent_task_prompts(db)
@@ -1034,3 +1098,163 @@ def post_general_message(
     if not message:
         raise HTTPException(status_code=404, detail="Проект не найден")
     return general_msg_to_response(message, current_user.name)
+
+
+# ---------------------------------------------------------------------------
+# Analysis council & approvals (JWT, PO for analyze)
+# ---------------------------------------------------------------------------
+
+
+def analysis_report_to_response(report: AnalysisReport) -> AnalysisReportResponse:
+    return AnalysisReportResponse(
+        id=report.id,
+        project_id=report.project_id,
+        task_id=report.task_id,
+        user_idea=report.user_idea,
+        winner_analyst=report.winner_analyst or "",
+        winner_proposal=report.winner_proposal or "",
+        report=report.report or "",
+        created_at=report.created_at.isoformat() if report.created_at else None,
+    )
+
+
+def approval_to_response(
+    approval: TaskApproval, db: Session, owner_id: int
+) -> ApprovalResponse:
+    task = crud.get_task(db, approval.task_id, owner_id)
+    report_text = None
+    if approval.report_id:
+        report = db.query(AnalysisReport).filter(AnalysisReport.id == approval.report_id).first()
+        report_text = report.report if report else None
+    return ApprovalResponse(
+        id=approval.id,
+        project_id=approval.project_id,
+        task_id=approval.task_id,
+        report_id=approval.report_id,
+        status=approval.status,
+        rejection_reason=approval.rejection_reason or "",
+        created_at=approval.created_at.isoformat() if approval.created_at else None,
+        task=ApprovalTaskResponse(
+            id=task.id,
+            title=task.title,
+            description=task.description or "",
+            status=task.status,
+            priority=task.priority,
+            assignee_agent_id=task.assignee_agent_id,
+        )
+        if task
+        else ApprovalTaskResponse(
+            id=approval.task_id,
+            title="Задача",
+            description="",
+            status="pending_approval",
+            priority="Medium",
+            assignee_agent_id=None,
+        ),
+        report=report_text,
+    )
+
+
+@app.post(
+    "/api/projects/{project_id}/analyze",
+    response_model=AnalyzeIdeaResponse,
+)
+async def analyze_idea(
+    project_id: int,
+    payload: AnalyzeIdeaRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+    _: None = Depends(require_po_role),
+):
+    project = crud.get_project(db, project_id, current_user.id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Проект не найден")
+
+    orchestrator = AgentOrchestrator(
+        project_id, payload.idea, db, current_user.id
+    )
+    try:
+        result = await orchestrator.run_full_analysis()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        from services.llm import DeepSeekError
+
+        if isinstance(exc, DeepSeekError):
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ошибка анализа: {exc}",
+        ) from exc
+
+    return AnalyzeIdeaResponse(**result)
+
+
+@app.get(
+    "/api/projects/{project_id}/analysis-history",
+    response_model=list[AnalysisReportResponse],
+)
+def get_analysis_history(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    reports = crud.get_analysis_history(db, project_id, current_user.id)
+    if not crud.get_project(db, project_id, current_user.id):
+        raise HTTPException(status_code=404, detail="Проект не найден")
+    return [analysis_report_to_response(r) for r in reports]
+
+
+@app.get(
+    "/api/projects/{project_id}/approvals",
+    response_model=list[ApprovalResponse],
+)
+def list_approvals(
+    project_id: int,
+    pending_only: bool = Query(True),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+):
+    if not crud.get_project(db, project_id, current_user.id):
+        raise HTTPException(status_code=404, detail="Проект не найден")
+    approvals = crud.get_all_approvals(
+        db, project_id, current_user.id, pending_only=pending_only
+    )
+    return [approval_to_response(a, db, current_user.id) for a in approvals]
+
+
+@app.post("/api/projects/{project_id}/approvals/{task_id}/approve")
+def approve_task_endpoint(
+    project_id: int,
+    task_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+    _: None = Depends(require_po_role),
+):
+    approval = crud.get_task_approval(db, project_id, task_id, current_user.id)
+    if not approval:
+        raise HTTPException(status_code=404, detail="Согласование не найдено")
+    task = crud.get_task(db, task_id, current_user.id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Задача не найдена")
+    crud.approve_task(db, approval, task)
+    return {"message": "Задача утверждена", "task_id": task_id}
+
+
+@app.post("/api/projects/{project_id}/approvals/{task_id}/reject")
+def reject_task_endpoint(
+    project_id: int,
+    task_id: int,
+    payload: RejectApprovalRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_user),
+    _: None = Depends(require_po_role),
+):
+    approval = crud.get_task_approval(db, project_id, task_id, current_user.id)
+    if not approval:
+        raise HTTPException(status_code=404, detail="Согласование не найдено")
+    task = crud.get_task(db, task_id, current_user.id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Задача не найдена")
+    crud.reject_task(db, approval, task, payload.reason)
+    return {"message": "Задача отправлена на доработку", "task_id": task_id}

@@ -37,6 +37,12 @@ class Project(Base):
     sprints = relationship("Sprint", back_populates="project", cascade="all, delete-orphan")
     general_messages = relationship("GeneralMessage", back_populates="project", cascade="all, delete-orphan")
     agents = relationship("Agent", back_populates="project", cascade="all, delete-orphan")
+    analysis_reports = relationship(
+        "AnalysisReport", back_populates="project", cascade="all, delete-orphan"
+    )
+    task_approvals = relationship(
+        "TaskApproval", back_populates="project", cascade="all, delete-orphan"
+    )
 
 
 class Sprint(Base):
@@ -90,6 +96,8 @@ class Task(Base):
     project = relationship("Project", back_populates="tasks")
     sprint = relationship("Sprint", back_populates="tasks")
     assignee_agent = relationship("Agent", back_populates="tasks")
+    approval = relationship("TaskApproval", back_populates="task", uselist=False)
+    analysis_report = relationship("AnalysisReport", back_populates="task", uselist=False)
 
 
 class ChatMessage(Base):
@@ -105,6 +113,55 @@ class ChatMessage(Base):
 
     user = relationship("User", back_populates="chat_messages")
     agent = relationship("Agent", back_populates="chat_messages")
+
+
+class AnalysisReport(Base):
+    __tablename__ = "analysis_reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False, index=True)
+    task_id = Column(Integer, ForeignKey("tasks.id"), nullable=True, index=True)
+    user_idea = Column(Text, nullable=False)
+    winner_analyst = Column(String(255), default="")
+    winner_proposal = Column(Text, default="")
+    report = Column(Text, default="")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    project = relationship("Project", back_populates="analysis_reports")
+    task = relationship("Task", back_populates="analysis_report")
+    proposals = relationship(
+        "AnalysisProposal", back_populates="report", cascade="all, delete-orphan"
+    )
+    approval = relationship("TaskApproval", back_populates="report", uselist=False)
+
+
+class AnalysisProposal(Base):
+    __tablename__ = "analysis_proposals"
+
+    id = Column(Integer, primary_key=True, index=True)
+    report_id = Column(Integer, ForeignKey("analysis_reports.id"), nullable=False, index=True)
+    analyst_name = Column(String(255), nullable=False)
+    analyst_style = Column(String(50), default="")
+    proposal = Column(Text, nullable=False)
+    votes = Column(Integer, default=0, nullable=False)
+
+    report = relationship("AnalysisReport", back_populates="proposals")
+
+
+class TaskApproval(Base):
+    __tablename__ = "task_approvals"
+
+    id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False, index=True)
+    task_id = Column(Integer, ForeignKey("tasks.id"), nullable=False, unique=True, index=True)
+    report_id = Column(Integer, ForeignKey("analysis_reports.id"), nullable=True, index=True)
+    status = Column(String(50), default="pending", nullable=False, index=True)
+    rejection_reason = Column(Text, default="")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    project = relationship("Project", back_populates="task_approvals")
+    task = relationship("Task", back_populates="approval")
+    report = relationship("AnalysisReport", back_populates="approval")
 
 
 class GeneralMessage(Base):
